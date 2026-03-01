@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Phoenix Animation -->
+    <div class="page-phoenix"></div>
+    
+    <div class="container">
+        {% if 'user_id' in session %}
+        <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+        {% else %}
+        <a href="/login" class="back-button">← Back to Login</a>
+        {% endif %}
+
+        <div class="about-container">
+            <div class="about-section">
+                <div class="logo">
+                    <div class="logo-icon">👁️</div>
+                    <h1>LENS CARE</h1>
+                    <p class="tagline">Interactive Optical Lens Advisor</p>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <h2>🎯 What is Lens Care?</h2>
+                <p>Lens Care is a comprehensive web-based optical prescription analysis system with user authentication, personal dashboards, and prescription tracking over years. Built with Flask, Excel storage, and modern web technologies.</p>
+            </div>
+
+            <div class="about-section">
+                <h2>✨ Features</h2>
+                
+                <h3>User Management</h3>
+                <ul>
+                    <li>Secure registration and login</li>
+                    <li>Password hashing for security</li>
+                    <li>30-day persistent sessions</li>
+                    <li>Doctor and patient roles</li>
+                </ul>
+
+                <h3>Eye Tests</h3>
+                <ul>
+                    <li>Complete 10-question Color Blindness Test</li>
+                    <li>8-level Visual Acuity Test (20/200 to 20/15)</li>
+                    <li>Color blindness type identification</li>
+                    <li>Results automatically saved</li>
+                </ul>
+
+                <h3>Dashboard Analytics</h3>
+                <ul>
+                    <li>4 different Chart.js visualizations</li>
+                    <li>Spherical Equivalent trend tracking</li>
+                    <li>Sphere and Cylinder progression charts</li>
+                    <li>Combined power visualization</li>
+                    <li>Automatic trend analysis</li>
+                </ul>
+
+                <h3>Prescription Management</h3>
+                <ul>
+                    <li>Add unlimited prescriptions</li>
+                    <li>Track changes over years</li>
+                    <li>Beautiful timeline view</li>
+                    <li>PDF report generation</li>
+                    <li>Excel data storage (persists after closing)</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h2>🔬 Physics Calculations</h2>
+                <div class="formula-box">
+                    <h4>Spherical Equivalent</h4>
+                    <code>SE = Sphere + (Cylinder/2)</code>
+                    <p>Combined refractive error for lens selection</p>
+                </div>
+                <div class="formula-box">
+                    <h4>Lens Power</h4>
+                    <code>P = 100/f (Diopters)</code>
+                    <p>Power in diopters where f is focal length in cm</p>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <h2>🛠️ Technology Stack</h2>
+                <h3>Backend</h3>
+                <ul>
+                    <li>Flask - Python web framework</li>
+                    <li>Excel (openpyxl) - Data storage</li>
+                    <li>Werkzeug - Security & hashing</li>
+                    <li>ReportLab - PDF generation</li>
+                </ul>
+                <h3>Frontend</h3>
+                <ul>
+                    <li>HTML5 & CSS3</li>
+                    <li>JavaScript ES6</li>
+                    <li>Chart.js - Data visualization</li>
+                    <li>Sunset Gradient theme</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h2>⚠️ Medical Disclaimer</h2>
+                <p style="color: var(--sunset-red); font-weight: 600;">This application is for educational and record-keeping purposes only. It is NOT a substitute for professional eye care.</p>
+                <p>Always consult with a licensed optometrist or ophthalmologist for:</p>
+                <ul>
+                    <li>Accurate eye examinations</li>
+                    <li>Professional prescriptions</li>
+                    <li>Medical advice and treatment</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h2>📧 Information</h2>
+                <p>Lens Care v2.0 - Final Edition</p>
+                <p>Features: Excel storage, 4 charts, complete eye tests, Sunset theme</p>
+                <p style="margin-top: 2rem; text-align: center; color: var(--text-medium);">
+                    Built with ❤️ for Eye Health Tracking<br>
+                    © 2026 Lens Care
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

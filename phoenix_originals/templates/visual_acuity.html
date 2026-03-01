@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Visual Acuity Test - Lens Care{% endblock %}
+
+{% block extra_css %}
+<style>
+    .acuity-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .snellen-chart {
+        background: white;
+        padding: 50px;
+        border-radius: 10px;
+        margin: 30px auto;
+        text-align: center;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .test-letter {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        color: #000;
+        transition: font-size 0.3s;
+    }
+    
+    .direction-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        max-width: 400px;
+        margin: 30px auto;
+    }
+    
+    .direction-btn {
+        padding: 20px;
+        font-size: 24px;
+        background: #f0f0f0;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .direction-btn:hover {
+        background: #e0e0e0;
+        transform: scale(1.05);
+    }
+    
+    .direction-btn.correct {
+        background: #d4edda;
+        border-color: #28a745;
+    }
+    
+    .direction-btn.wrong {
+        background: #f8d7da;
+        border-color: #dc3545;
+    }
+    
+    .level-indicator {
+        text-align: center;
+        margin: 20px 0;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    .distance-info {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        border: 2px solid #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>👁️ Visual Acuity Test</h1>
+        <p>Snellen Chart Test for Distance Vision</p>
+    </div>
+</div>
+
+<div class="container">
+    <div id="testInstructions" class="acuity-container">
+        <h2>Instructions</h2>
+        <div class="info-card">
+            <ul>
+                <li>Sit approximately 60-70 cm (24-28 inches) from your screen</li>
+                <li>Ensure good lighting in the room</li>
+                <li>Cover one eye and test each eye separately</li>
+                <li>You will see letters pointing in different directions</li>
+                <li>Click the arrow buttons to indicate the direction of the letter opening</li>
+                <li>The letters will get progressively smaller</li>
+                <li>If you wear glasses, keep them on during the test</li>
+            </ul>
+        </div>
+        
+        <div class="distance-info">
+            <strong>⚠️ Important:</strong> Please measure your distance from the screen before starting. 
+            The test results depend on viewing distance!
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="startAcuityTest()" class="btn btn-primary btn-large">Start Test</button>
+            <a href="/eye-tests" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+    <div id="testContent" class="acuity-container" style="display: none;">
+        <div class="level-indicator">
+            Level <span id="currentLevel">1</span> of 8
+            <span id="acuityLevel" style="color: #666; font-size: 16px;"></span>
+        </div>
+        
+        <div class="snellen-chart">
+            <div class="test-letter" id="testLetter">E</div>
+        </div>
+        
+        <div style="text-align: center; color: #666; margin-bottom: 15px;">
+            Which direction is the letter opening?
+        </div>
+        
+        <div class="direction-buttons">
+            <div></div>
+            <button class="direction-btn" onclick="checkAnswer('up')">↑</button>
+            <div></div>
+            <button class="direction-btn" onclick="checkAnswer('left')">←</button>
+            <div></div>
+            <button class="direction-btn" onclick="checkAnswer('right')">→</button>
+            <div></div>
+            <button class="direction-btn" onclick="checkAnswer('down')">↓</button>
+            <div></div>
+        </div>
+        
+        <div id="feedback" style="text-align: center; font-size: 18px; min-height: 30px; font-weight: bold;"></div>
+    </div>
+
+    <div id="testResults" class="acuity-container" style="display: none;">
+        <h2 style="text-align: center;">Visual Acuity Results</h2>
+        
+        <div class="results-card">
+            <div style="text-align: center;">
+                <div style="font-size: 48px; font-weight: bold; color: #2196F3;" id="finalAcuity">20/20</div>
+                <p style="font-size: 18px; color: #666;">Approximate Visual Acuity</p>
+            </div>
+            
+            <div id="resultAnalysis" style="margin-top: 30px;"></div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="restartAcuityTest()" class="btn btn-secondary">Retake Test</button>
+            <a href="/eye-tests" class="btn btn-primary">Back to Tests</a>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/visual_acuity.js') }}"></script>
+{% endblock %}

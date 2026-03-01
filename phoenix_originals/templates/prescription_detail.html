@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Details - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Phoenix Animation -->
+    <div class="page-phoenix"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">👁️</span>
+                <h1>LENS CARE</h1>
+            </div>
+        </header>
+
+        <div class="detail-container">
+            <div class="detail-header">
+                <h2>📋 Prescription Details</h2>
+                <div class="detail-actions">
+                    <a href="/download_report/{{ prescription.id }}" class="btn btn-primary">📄 Download PDF</a>
+                    <a href="/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Prescription Info Card -->
+            <div class="detail-card">
+                <h3>Prescription Information</h3>
+                <div class="detail-grid">
+                    <div>
+                        <strong>Patient:</strong> {{ prescription.full_name }}
+                    </div>
+                    <div>
+                        <strong>Date:</strong> {{ prescription.prescription_date }}
+                    </div>
+                    <div>
+                        <strong>Age:</strong> {{ prescription.age }} years
+                    </div>
+                    <div>
+                        <strong>Diagnosis:</strong> {{ prescription.diagnosis }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription Table -->
+            <div class="detail-card">
+                <h3>👁️ Optical Prescription</h3>
+                <table class="prescription-table">
+                    <thead>
+                        <tr>
+                            <th>Eye</th>
+                            <th>Sphere (SPH)</th>
+                            <th>Cylinder (CYL)</th>
+                            <th>Axis</th>
+                            <th>Add</th>
+                            <th>SE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>OD (Right)</strong></td>
+                            <td>{{ prescription.od_sph }}</td>
+                            <td>{{ prescription.od_cyl }}</td>
+                            <td>{{ prescription.od_axis }}°</td>
+                            <td>{{ prescription.od_add or '-' }}</td>
+                            <td><strong>{{ prescription.od_se }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>OS (Left)</strong></td>
+                            <td>{{ prescription.os_sph }}</td>
+                            <td>{{ prescription.os_cyl }}</td>
+                            <td>{{ prescription.os_axis }}°</td>
+                            <td>{{ prescription.os_add or '-' }}</td>
+                            <td><strong>{{ prescription.os_se }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Lens Specifications -->
+            <div class="detail-card">
+                <h3>💎 Lens Specifications</h3>
+                <div class="detail-grid">
+                    <div class="spec-card">
+                        <strong>Lens Type</strong>
+                        <p>{{ prescription.lens_type }}</p>
+                    </div>
+                    <div class="spec-card">
+                        <strong>Lens Power</strong>
+                        <p>{{ prescription.lens_power }}</p>
+                    </div>
+                    <div class="spec-card">
+                        <strong>Lens Material</strong>
+                        <p>{{ prescription.lens_material }}</p>
+                    </div>
+                    <div class="spec-card">
+                        <strong>Focal Length</strong>
+                        <p>{{ prescription.focal_length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eye Test Results (if available) -->
+            {% if prescription.colorblind_score or prescription.acuity_score %}
+            <div class="detail-card">
+                <h3>👁️ Eye Test Results</h3>
+                <div class="detail-grid">
+                    {% if prescription.colorblind_score %}
+                    <div class="spec-card">
+                        <strong>Color Blindness Test</strong>
+                        <p>{{ prescription.colorblind_score }}</p>
+                        {% if prescription.colorblind_type %}
+                        <small>{{ prescription.colorblind_type }}</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% if prescription.acuity_score %}
+                    <div class="spec-card">
+                        <strong>Visual Acuity</strong>
+                        <p>{{ prescription.acuity_score }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Notes -->
+            {% if prescription.notes %}
+            <div class="detail-card">
+                <h3>📝 Additional Notes</h3>
+                <p>{{ prescription.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

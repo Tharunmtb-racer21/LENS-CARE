@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+
+        /* ── Welcome banner (below nav) ── */
+        .dash-welcome-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 22px 28px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xs);
+            margin: 24px 0 28px;
+            flex-wrap: wrap;
+        }
+        .dash-welcome-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .dash-welcome-icon {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,123,255,.10);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+            background: var(--base);
+        }
+        .dash-welcome-icon img { width: 34px; height: 34px; object-fit: contain; display: block; }
+        .dash-welcome-title { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .dash-welcome-sub   { font-size: 13px; color: var(--text-secondary); }
+        .dash-welcome-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+        /* ── Gradient Buttons ── */
+        .btn-grad-green {
+            background: linear-gradient(135deg, #00C853, #00A843);
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(0,200,83,0.30);
+        }
+        .btn-grad-green:hover { background: linear-gradient(135deg,#00A843,#008C38); box-shadow: 0 6px 20px rgba(0,200,83,0.45); transform: translateY(-1px); }
+
+        .btn-grad-blue {
+            background: linear-gradient(135deg, #007BFF, #0062CC);
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.30);
+        }
+        .btn-grad-blue:hover  { background: linear-gradient(135deg,#0062CC,#004EB3); box-shadow: 0 6px 20px rgba(0,123,255,0.45); transform: translateY(-1px); }
+
+        .btn-grad-lblue {
+            background: linear-gradient(135deg, #339DFF, #007BFF);
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.22);
+        }
+        .btn-grad-lblue:hover { background: linear-gradient(135deg,#007BFF,#0062CC); box-shadow: 0 6px 20px rgba(0,123,255,0.38); transform: translateY(-1px); }
+
+        .btn, a.btn { transition: all 0.18s ease; }
+    </style>
+</head>
+<body>
+    <nav class="dashboard-nav">
+    <div class="nav-inner">
+        <div class="nav-brand">
+            <div class="logo-icon">
+                <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+            </div>
+            <span class="brand-name">LENS CARE</span>
+        </div>
+        <div class="nav-links">
+            <a href="/dashboard"     class="nav-link active">Dashboard</a>
+            <a href="/eye_test"      class="nav-link">Eye Test</a>
+            <a href="/lens_frames"   class="nav-link">Frames</a>
+            <a href="/eye_insights"  class="nav-link">Insights</a>
+            <a href="/face_analyser" class="nav-link">Face Fit</a>
+            <a href="/frame_creator" class="nav-link">Frame Creator</a>
+        </div>
+        <div class="nav-actions">
+            <span class="nav-user">{{ user.full_name or user.username }}</span>
+            <a href="/prescription" class="btn btn-grad-green btn-sm">+ New Rx</a>
+            <a href="/logout"       class="btn btn-outline    btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+<div class="container" style="padding-top: 28px; padding-bottom: 48px;">
+        <!-- Welcome banner -->
+        <div class="dash-welcome-banner">
+            <div class="dash-welcome-left">
+                <div class="dash-welcome-icon">
+                    <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+                </div>
+                <div>
+                    <h2 class="dash-welcome-title">Welcome back, {{ user.full_name or user.username }}!</h2>
+                    <p class="dash-welcome-sub">Your Eye Health Dashboard</p>
+                </div>
+            </div>
+            <div class="dash-welcome-actions">
+                <a href="/view_all_records" class="btn btn-outline btn-sm">📋 Records</a>
+                <a href="/prescription"     class="btn btn-grad-green">➕ New Prescription</a>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <h3>{{ prescriptions|length }}</h3>
+                    <p>Total Prescriptions</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <h3>{{ prescriptions[0].prescription_date if prescriptions else 'N/A' }}</h3>
+                    <p>Last Visit</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <h3>{{ prescriptions[0].diagnosis if prescriptions else 'N/A' }}</h3>
+                    <p>Current Diagnosis</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Phoenix" style="width: 40px; height: 40px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.6));">
+                </div>
+                <div class="stat-content">
+                    <h3>{{ eye_tests|length }}</h3>
+                    <p>Eye Tests Taken</p>
+                </div>
+            </div>
+        </div>        <!-- SINGLE COMPREHENSIVE VISION CHART -->
+        <div class="chart-card" style="margin-bottom: 30px;">
+            <h2>📊 Complete Vision Trend Analysis</h2>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Track all your vision metrics over time</p>
+            <div style="position:relative; height:380px; width:100%;">
+                <canvas id="visionChart"></canvas>
+            </div>
+        </div>
+        <div id="trendAnalysis" style="margin-bottom: 30px;"></div>
+
+        {% if prescriptions|length == 0 %}
+        <!-- Rich empty state — fills dashboard when no prescriptions -->
+        <div class="empty-dashboard">
+
+            <!-- Welcome banner -->
+            <div class="welcome-banner">
+                <div class="welcome-banner-left">
+                    <div class="welcome-eye-circle">
+                        <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Eye">
+                    </div>
+                    <div>
+                        <h2>Welcome to Lens Care, {{ user.full_name or user.username }}! 👋</h2>
+                        <p>Your eye health journey starts here. Complete these 3 steps to get your full dashboard.</p>
+                    </div>
+                </div>
+                <a href="/prescription" class="btn btn-grad-green btn-large">Get Started →</a>
+            </div>
+
+            <!-- 3-step getting started -->
+            <div class="getting-started-grid">
+                <div class="gs-card">
+                    <div class="gs-number">1</div>
+                    <div class="gs-icon">🔬</div>
+                    <h3>Take an Eye Test</h3>
+                    <p>Our online color blindness and visual acuity tests screen your vision in minutes — no equipment needed.</p>
+                    <a href="/eye_test" class="btn btn-grad-blue" style="margin-top:auto;">Start Eye Test →</a>
+                </div>
+                <div class="gs-card">
+                    <div class="gs-number">2</div>
+                    <div class="gs-icon">📋</div>
+                    <h3>Enter Your Prescription</h3>
+                    <p>Add your current prescription from your optometrist. We'll analyse it and recommend the right lenses.</p>
+                    <a href="/prescription" class="btn btn-grad-green" style="margin-top:auto;">Add Prescription →</a>
+                </div>
+                <div class="gs-card">
+                    <div class="gs-number">3</div>
+                    <div class="gs-icon">🕶️</div>
+                    <h3>Explore Lens Frames</h3>
+                    <p>Browse curated frames matched to your prescription power and style preference. Order from top optical centres.</p>
+                    <a href="/lens_frames" class="btn btn-grad-lblue" style="margin-top:auto;">Browse Frames →</a>
+                </div>
+            </div>
+
+            <!-- Quick info cards -->
+            <div class="quick-info-row">
+                <div class="qi-card qi-blue">
+                    <div class="qi-icon">💡</div>
+                    <div>
+                        <h4>Did you know?</h4>
+                        <p>Myopia affects 1 in 3 people worldwide. Early tracking helps slow its progression significantly.</p>
+                    </div>
+                </div>
+                <div class="qi-card qi-green">
+                    <div class="qi-icon">📊</div>
+                    <div>
+                        <h4>After your first prescription</h4>
+                        <p>Your dashboard will show trend charts, diagnosis history, and personalised lens recommendations.</p>
+                    </div>
+                </div>
+                <div class="qi-card qi-indigo">
+                    <div class="qi-icon">🏥</div>
+                    <div>
+                        <h4>Trusted by optometrists</h4>
+                        <p>Share your Lens Care report with your doctor at your next exam for a complete vision history.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lens frames preview teaser -->
+            <div class="frames-teaser">
+                <div class="frames-teaser-text">
+                    <span class="teaser-label">New on Lens Care</span>
+                    <h3>🕶️ Explore Lens Frames & Order Online</h3>
+                    <p>Browse frames curated for your prescription strength from Lenskart, Titan Eye+, and Specsmakers. Get an instant lens material recommendation.</p>
+                    <a href="/lens_frames" class="btn btn-grad-lblue" style="margin-top:16px;">Explore Frames →</a>
+                </div>
+                <div class="frames-teaser-preview">
+                    <div class="frame-preview-pill">🕶️ Classic Wayfarer — ₹1,299</div>
+                    <div class="frame-preview-pill">🔲 Rimless Titanium — ₹2,499</div>
+                    <div class="frame-preview-pill">⭕ Round Retro — ₹3,199</div>
+                    <div class="frame-preview-pill">🏃 Sport Wraparound — ₹1,799</div>
+                    <div class="frame-preview-pill more-pill">+ 20 more →</div>
+                </div>
+            </div>
+
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // SINGLE COMPREHENSIVE CHART - GUARANTEED TO WORK
+        const userId = {{ user.id }};
+        
+        console.log('🔍 Starting chart initialization for user:', userId);
+        
+        // Only run if we have the chart element
+        const chartElement = document.getElementById('visionChart');
+        if (chartElement) {
+            console.log('✅ Chart element found, fetching data...');
+            
+            fetch(`/api/prescription_trend/${userId}`)
+                .then(response => {
+                    console.log('📡 Response received, status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 Data received:', data);
+                    
+                    if (data.dates && data.dates.length > 1) {
+                        console.log('✅ Sufficient data, creating chart...');
+                        createChart(data);
+                        analyzeData(data);
+                    } else {
+                        console.log('⚠️ Not enough data for chart');
+                        showMessage('Need at least 2 prescriptions to show trends.');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error:', error);
+                    showMessage('Error loading chart. Check console for details.', true);
+                });
+        } else {
+            console.log('ℹ️ No chart element found (probably less than 2 prescriptions)');
+        }
+
+        function showMessage(text, isError = false) {
+            const wrapper = document.querySelector('#visionChart')?.parentElement;
+            if (!wrapper) return;
+            const color = isError ? '#FF6B00' : '#3A8DFF';
+            wrapper.innerHTML = `<p style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px;color:${color};font-size:14px;font-weight:600;">${text}</p>`;
+        }
+
+        function createChart(data) {
+            // Format dates — handle both ISO strings and Python datetime strings
+            const dates = data.dates.map(d => {
+                const dt = new Date(d.replace(' ', 'T'));
+                return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            });
+
+            const ctx = document.getElementById('visionChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Right Eye (OD)',
+                            data: data.od_se,
+                            borderColor: '#FF6B00',
+                            backgroundColor: 'rgba(255, 107, 0, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#FF6B00',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Left Eye (OS)',
+                            data: data.os_se,
+                            borderColor: '#00D4FF',
+                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#00D4FF',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 14, family: 'Plus Jakarta Sans', weight: '600' },
+                                color: '#007BFF',
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255,255,255,0.97)',
+                            titleColor: '#0D1B2A',
+                            bodyColor: '#3A5A7C',
+                            titleFont: { size: 13, family: 'Plus Jakarta Sans', weight: '600' },
+                            bodyFont: { size: 12, family: 'Plus Jakarta Sans' },
+                            padding: 14,
+                            cornerRadius: 10,
+                            borderColor: 'rgba(0,123,255,0.2)',
+                            borderWidth: 1,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' D';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(0,123,255,0.08)', lineWidth: 1 },
+                            ticks: {
+                                font: { family: 'Plus Jakarta Sans', size: 12 },
+                                color: '#3A5A7C',
+                                callback: v => v.toFixed(1) + ' D'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Spherical Equivalent (Diopters)',
+                                font: { family: 'Plus Jakarta Sans', size: 13, weight: '600' },
+                                color: '#007BFF'
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Plus Jakarta Sans', size: 12 }, color: '#3A5A7C' }
+                        }
+                    },
+                    animation: { duration: 1000, easing: 'easeInOutQuart' }
+                }
+            });
+        }
+
+        function analyzeData(data) {
+            const el = document.getElementById('trendAnalysis');
+            if (!el) return;
+
+            const first = 0;
+            const last  = data.dates.length - 1;
+            const odChange = Math.abs(data.od_se[last] - data.od_se[first]);
+            const osChange = Math.abs(data.os_se[last] - data.os_se[first]);
+            const avgChange = (odChange + osChange) / 2;
+
+            let alertHtml = '';
+            if (avgChange > 1.0) {
+                alertHtml = `<div style="padding:14px 18px;border-radius:10px;background:rgba(255,107,0,.10);border-left:4px solid #FF6B00;margin-bottom:14px;">
+                    <strong style="color:#FF6B00;">⚠️ Significant Vision Changes</strong>
+                    <p style="margin:4px 0 0;font-size:13px;">Average change of ${avgChange.toFixed(2)}D detected. Consider scheduling an eye exam soon.</p></div>`;
+            } else if (avgChange > 0.5) {
+                alertHtml = `<div style="padding:14px 18px;border-radius:10px;background:rgba(255,176,32,.10);border-left:4px solid #FFB020;margin-bottom:14px;">
+                    <strong style="color:#FFB020;">⚠️ Moderate Changes Detected</strong>
+                    <p style="margin:4px 0 0;font-size:13px;">Average change of ${avgChange.toFixed(2)}D. Continue monitoring regularly.</p></div>`;
+            } else {
+                alertHtml = `<div style="padding:14px 18px;border-radius:10px;background:rgba(0,200,83,.10);border-left:4px solid #00C853;margin-bottom:14px;">
+                    <strong style="color:#00C853;">✅ Vision Stable</strong>
+                    <p style="margin:4px 0 0;font-size:13px;">Only ${avgChange.toFixed(2)}D average change. Keep up with regular check-ups!</p></div>`;
+            }
+
+            el.innerHTML = `
+            <div class="chart-card">
+                <h2>📊 Vision Trend Summary</h2>
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+                    Period: ${new Date(data.dates[first].replace(' ','T')).toLocaleDateString()} &rarr;
+                    ${new Date(data.dates[last].replace(' ','T')).toLocaleDateString()}
+                    &nbsp;·&nbsp; ${data.dates.length} prescriptions
+                </p>
+                ${alertHtml}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div style="padding:14px;background:rgba(255,107,0,.08);border-radius:10px;border-left:3px solid #FF6B00;">
+                        <strong style="color:#FF6B00;">Right Eye (OD)</strong>
+                        <p style="margin:4px 0 0;font-size:13px;">Change: ${odChange.toFixed(2)}D &nbsp;|&nbsp; Latest: ${data.od_se[last].toFixed(2)}D</p>
+                    </div>
+                    <div style="padding:14px;background:rgba(0,212,255,.08);border-radius:10px;border-left:3px solid #00D4FF;">
+                        <strong style="color:#00D4FF;">Left Eye (OS)</strong>
+                        <p style="margin:4px 0 0;font-size:13px;">Change: ${osChange.toFixed(2)}D &nbsp;|&nbsp; Latest: ${data.os_se[last].toFixed(2)}D</p>
+                    </div>
+                </div>
+            </div>`;
+        }
+    </script>
+</body>
+</html>

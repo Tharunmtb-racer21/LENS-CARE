@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Entry - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Phoenix Animation -->
+    <div class="page-phoenix"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">👁️</span>
+                <h1>LENS CARE</h1>
+            </div>
+        </header>
+
+        <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+
+        <div class="prescription-container">
+            <h2 class="page-title">Prescription Entry</h2>
+            <p class="page-subtitle">Enter your optical prescription data</p>
+
+            <form id="prescription-form" class="prescription-form">
+                <!-- Patient Information (NO Patient ID!) -->
+                <div class="form-section">
+                    <h3 class="section-title">Patient Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age *</label>
+                            <input type="number" id="age" name="age" min="1" max="120" required>
+                            <small>Current age of the patient</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Eye (OD) -->
+                <div class="form-section">
+                    <h3 class="section-title">👁️ Right Eye (OD) - Oculus Dexter</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="od-sph">Sphere (SPH) *</label>
+                            <input type="number" id="od-sph" name="od_sph" step="0.25" required>
+                            <small>Positive (+) for hyperopia, Negative (-) for myopia</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="od-cyl">Cylinder (CYL) *</label>
+                            <input type="number" id="od-cyl" name="od_cyl" step="0.25" value="0" required>
+                            <small>Astigmatism correction</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="od-axis">Axis</label>
+                            <input type="number" id="od-axis" name="od_axis" min="0" max="180" value="0">
+                            <small>Degrees (0-180)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="od-add">Add (Reading)</label>
+                            <input type="number" id="od-add" name="od_add" step="0.25" value="0">
+                            <small>For presbyopia (40+ years)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Left Eye (OS) -->
+                <div class="form-section">
+                    <h3 class="section-title">👁️ Left Eye (OS) - Oculus Sinister</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="os-sph">Sphere (SPH) *</label>
+                            <input type="number" id="os-sph" name="os_sph" step="0.25" required>
+                            <small>Positive (+) for hyperopia, Negative (-) for myopia</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="os-cyl">Cylinder (CYL) *</label>
+                            <input type="number" id="os-cyl" name="os_cyl" step="0.25" value="0" required>
+                            <small>Astigmatism correction</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="os-axis">Axis</label>
+                            <input type="number" id="os-axis" name="os_axis" min="0" max="180" value="0">
+                            <small>Degrees (0-180)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="os-add">Add (Reading)</label>
+                            <input type="number" id="os-add" name="os_add" step="0.25" value="0">
+                            <small>For presbyopia (40+ years)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Notes -->
+                <div class="form-section">
+                    <h3 class="section-title">📝 Additional Notes</h3>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes (Optional)</label>
+                        <input type="text" id="notes" name="notes" placeholder="Any additional information...">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary btn-large">Calculate & Submit →</button>
+                    <button type="button" class="btn btn-secondary" onclick="fillSampleData()">Fill Sample Data</button>
+                </div>
+            </form>
+
+            <div id="message" class="message hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load eye test results from session if available
+        window.onload = function() {
+            const eyeTestResults = sessionStorage.getItem('eyeTestResults');
+            if (eyeTestResults) {
+                // Eye test results are available but not auto-filled
+                console.log('Eye test results available:', eyeTestResults);
+            }
+        };
+
+        function fillSampleData() {
+            document.getElementById('age').value = 25;
+            document.getElementById('od-sph').value = -2.50;
+            document.getElementById('od-cyl').value = -0.75;
+            document.getElementById('od-axis').value = 90;
+            document.getElementById('od-add').value = 0;
+            document.getElementById('os-sph').value = -2.75;
+            document.getElementById('os-cyl').value = -1.00;
+            document.getElementById('os-axis').value = 85;
+            document.getElementById('os-add').value = 0;
+            document.getElementById('notes').value = 'Sample prescription data';
+        }
+
+        document.getElementById('prescription-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            
+            const formData = {
+                age: document.getElementById('age').value,
+                od_sph: document.getElementById('od-sph').value,
+                od_cyl: document.getElementById('od-cyl').value,
+                od_axis: document.getElementById('od-axis').value,
+                od_add: document.getElementById('od-add').value,
+                os_sph: document.getElementById('os-sph').value,
+                os_cyl: document.getElementById('os-cyl').value,
+                os_axis: document.getElementById('os-axis').value,
+                os_add: document.getElementById('os-add').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            // Include eye test results if available
+            const eyeTestResults = sessionStorage.getItem('eyeTestResults');
+            if (eyeTestResults) {
+                const testData = JSON.parse(eyeTestResults);
+                formData.colorblind_score = testData.colorblind;
+                formData.colorblind_type = testData.colorblindType;
+                formData.acuity_score = testData.acuity;
+            }
+            
+            try {
+                const response = await fetch('/submit_prescription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    messageDiv.textContent = 'Prescription saved! Redirecting to analysis...';
+                    messageDiv.className = 'message success';
+                    sessionStorage.removeItem('eyeTestResults'); // Clear used test results
+                    setTimeout(() => window.location.href = '/analysis', 1000);
+                } else {
+                    messageDiv.textContent = result.message;
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>

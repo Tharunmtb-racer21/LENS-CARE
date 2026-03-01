@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Eye Tests - Lens Care{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🔬 Online Eye Tests</h1>
+        <p>Take comprehensive eye tests from the comfort of your home</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="test-cards-grid">
+        <div class="test-card">
+            <div class="test-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                🎨
+            </div>
+            <h3>Color Blindness Test</h3>
+            <p>Based on Ishihara color test plates. Identifies red-green and blue-yellow color vision deficiencies.</p>
+            <div class="test-info">
+                <span class="badge">10 Questions</span>
+                <span class="badge">~3 minutes</span>
+            </div>
+            <a href="/color-blindness-test" class="btn btn-primary">Start Test</a>
+        </div>
+
+        <div class="test-card">
+            <div class="test-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                👁️
+            </div>
+            <h3>Visual Acuity Test</h3>
+            <p>Measures sharpness of your vision using Snellen chart. Tests your ability to see details at various distances.</p>
+            <div class="test-info">
+                <span class="badge">8 Levels</span>
+                <span class="badge">~5 minutes</span>
+            </div>
+            <a href="/visual-acuity-test" class="btn btn-primary">Start Test</a>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <h3>⚠️ Important Information</h3>
+        <ul>
+            <li>These tests are for screening purposes only and do not replace professional eye examinations.</li>
+            <li>Ensure you are in a well-lit room and your screen is clean.</li>
+            <li>Sit approximately 60-70 cm (24-28 inches) from your screen.</li>
+            <li>If you wear glasses or contact lenses, wear them during the test.</li>
+            <li>If you have concerns about your vision, consult an eye care professional.</li>
+        </ul>
+    </div>
+
+    <div class="understanding-section">
+        <h2>Understanding Color Vision Deficiency</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <h4>Deuteranopia (Red-Green)</h4>
+                <p>Most common type. Difficulty distinguishing between red and green hues. Caused by absence of medium-wavelength cones.</p>
+            </div>
+            <div class="info-item">
+                <h4>Protanopia (Red)</h4>
+                <p>Reduced sensitivity to red light. Red appears darker and less vibrant. Caused by absence of long-wavelength cones.</p>
+            </div>
+            <div class="info-item">
+                <h4>Tritanopia (Blue-Yellow)</h4>
+                <p>Rare condition. Difficulty distinguishing between blue and yellow. Caused by absence of short-wavelength cones.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

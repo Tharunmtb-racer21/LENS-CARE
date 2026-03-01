@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="dashboard-nav">
+            <div class="nav-brand">
+                <span class="logo-icon">👁️</span>
+                <span class="brand-name">LENS CARE</span>
+            </div>
+            <div class="nav-menu">
+                <span class="nav-user">
+                    <strong>👨‍⚕️ Dr. {{ session.full_name }}</strong>
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </nav>
+
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <h1>Doctor Dashboard</h1>
+            <p class="dashboard-subtitle">Manage patient prescriptions and records</p>
+        </header>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3 id="total-patients">-</h3>
+                    <p>Total Patients</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <h3 id="total-visits">-</h3>
+                    <p>Total Visits</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <h3 id="today-date">-</h3>
+                    <p>Today's Date</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Actions -->
+        <div class="dashboard-actions">
+            <h2>Quick Actions</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">➕</div>
+                    <h3>New Patient</h3>
+                    <p>Register a new patient and enter their first prescription</p>
+                    <a href="{{ url_for('prescription') }}" class="btn btn-success">New Patient</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Follow-up Visit</h3>
+                    <p>Enter prescription for an existing patient's return visit</p>
+                    <button class="btn btn-primary" onclick="showFollowupModal()">Follow-up Visit</button>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Patient Records</h3>
+                    <p>View and search all patient records and history</p>
+                    <a href="{{ url_for('patient_records') }}" class="btn btn-info">View Records</a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Eye Tests</h3>
+                    <p>Administer color blindness and visual acuity tests</p>
+                    <a href="{{ url_for('eye_test') }}" class="btn btn-primary">Start Tests</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h2>Recent Activity</h2>
+            <div id="recent-activity-content">
+                <p class="loading">Loading recent visits...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow-up Modal -->
+    <div id="followup-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeFollowupModal()">&times;</span>
+            <h3>Follow-up Visit</h3>
+            <p>Enter the Patient ID for the follow-up visit:</p>
+            
+            <div class="form-group">
+                <label for="followup-patient-id">Patient ID</label>
+                <input type="text" id="followup-patient-id" placeholder="e.g., PT0001">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="proceedFollowup()">Continue</button>
+                <button class="btn btn-secondary" onclick="closeFollowupModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/patient_records');
+                const html = await response.text();
+                
+                // Parse HTML to count records
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const recordsTable = doc.querySelector('.records-table tbody');
+                
+                if (recordsTable) {
+                    const rows = recordsTable.querySelectorAll('tr');
+                    document.getElementById('total-patients').textContent = rows.length;
+                }
+                
+                // Set today's date
+                const today = new Date();
+                const options = { month: 'short', day: 'numeric', year: 'numeric' };
+                document.getElementById('today-date').textContent = today.toLocaleDateString('en-US', options);
+                
+                // Load total visits
+                loadTotalVisits();
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadTotalVisits() {
+            // This would ideally come from an API endpoint
+            document.getElementById('total-visits').textContent = '-';
+        }
+
+        // Follow-up modal functions
+        function showFollowupModal() {
+            document.getElementById('followup-modal').style.display = 'block';
+        }
+
+        function closeFollowupModal() {
+            document.getElementById('followup-modal').style.display = 'none';
+            document.getElementById('followup-patient-id').value = '';
+        }
+
+        function proceedFollowup() {
+            const patientId = document.getElementById('followup-patient-id').value.trim();
+            
+            if (!patientId) {
+                alert('Please enter a Patient ID');
+                return;
+            }
+            
+            window.location.href = `/prescription?patient_id=${patientId}`;
+        }
+
+        // Load recent activity
+        async function loadRecentActivity() {
+            // This would fetch recent visits from the backend
+            const activityContent = document.getElementById('recent-activity-content');
+            activityContent.innerHTML = '<p class="info-message">Recent visit tracking feature coming soon!</p>';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('followup-modal');
+            if (event.target == modal) {
+                closeFollowupModal();
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            loadStats();
+            loadRecentActivity();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frame Creator — Lens Care</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+/* ── PROJECT THEME TOKENS ───────────────────────── */
+:root {
+  --gold:    #C8A84B;
+  --gold2:   #E6C96B;
+  --gold-bg: rgba(200,168,75,.10);
+  --teal:    #00C87A;
+  --panel-w: 320px;
+  --hdr-h:   52px;
+}
+
+body {
+  background: #F0F7FF;
+  color: var(--text-primary, #0D1B2A);
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BUTTONS — project standard ─────────────────── */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:6px; padding:9px 18px; border-radius:var(--radius-md,10px); border:none;
+  font-family:'Outfit',sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .16s; text-decoration:none; white-space:nowrap;
+}
+.btn:disabled { opacity:.4; cursor:not-allowed !important; transform:none !important; }
+.btn-gold    { background:linear-gradient(135deg,#C8A84B,#E6C96B); color:#0A0A0F!important; box-shadow:0 4px 14px rgba(200,168,75,.32); }
+.btn-gold:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 6px 22px rgba(200,168,75,.45); }
+.btn-blue    { background:linear-gradient(135deg,#007BFF,#0062CC); color:#fff!important; box-shadow:0 4px 14px rgba(0,123,255,.28); }
+.btn-blue:hover:not(:disabled)  { background:linear-gradient(135deg,#0062CC,#004EB3); transform:translateY(-1px); }
+.btn-teal    { background:linear-gradient(135deg,#00C853,#00A843); color:#fff!important; box-shadow:0 4px 14px rgba(0,200,83,.28); }
+.btn-teal:hover:not(:disabled)  { background:linear-gradient(135deg,#00A843,#008C38); transform:translateY(-1px); }
+.btn-ghost   { background:transparent; color:var(--text-secondary,#64748B); border:1.5px solid var(--border,#D0E4F7); }
+.btn-ghost:hover:not(:disabled) { border-color:var(--primary,#007BFF); color:var(--primary,#007BFF); }
+.btn-danger  { background:rgba(220,38,38,.08); color:#DC2626; border:1px solid rgba(220,38,38,.22); }
+.btn-danger:hover:not(:disabled){ background:rgba(220,38,38,.15); }
+.btn-sm      { padding:6px 13px!important; font-size:12px!important; border-radius:var(--radius-sm,6px)!important; }
+.btn-grad-green { background:linear-gradient(135deg,#00C853,#00A843); color:#fff!important; box-shadow:0 4px 14px rgba(0,200,83,.28); }
+.btn-outline    { background:transparent; color:var(--text-secondary,#64748B); border:1.5px solid var(--border,#D0E4F7); }
+.btn-outline:hover { border-color:var(--primary,#007BFF); color:var(--primary,#007BFF); }
+
+/* ── STUDIO SHELL ──────────────────────────────────── */
+.studio {
+  display: grid;
+  grid-template-rows: var(--hdr-h) 1fr;
+  grid-template-columns: 1fr var(--panel-w);
+  height: calc(100vh - 64px);  /* subtract nav height */
+}
+
+/* ── STUDIO TOPBAR ─────────────────────────────────── */
+.studio-bar {
+  grid-column: 1 / -1;
+  background: #fff;
+  border-bottom: 1px solid var(--border, #D0E4F7);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 14px;
+  position: relative; z-index: 20;
+  box-shadow: var(--shadow-xs, 0 1px 3px rgba(0,100,200,.07));
+}
+.studio-logo { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.studio-logo-badge {
+  background: linear-gradient(135deg,#007BFF,#0062CC);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; font-weight: 700;
+  padding: 2px 8px; border-radius: 4px;
+  letter-spacing: 1.2px; text-transform: uppercase;
+}
+.studio-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 17px; font-weight: 800;
+  color: var(--text-primary, #0D1B2A);
+}
+.studio-name em { color: var(--primary, #007BFF); font-style: normal; }
+
+.bar-divider { width:1px; height:22px; background:var(--border,#D0E4F7); flex-shrink:0; }
+
+.bar-name-input {
+  flex:1; max-width:240px;
+  background: #F0F7FF;
+  border: 1px solid var(--border, #D0E4F7);
+  border-radius: var(--radius-md, 10px);
+  padding: 7px 13px;
+  color: var(--text-primary, #0D1B2A);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 600;
+  outline: none; transition: border-color .15s;
+}
+.bar-name-input:focus { border-color: var(--primary, #007BFF); background:#fff; }
+.bar-name-input::placeholder { color: var(--text-secondary, #64748B); }
+
+.bar-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+
+.hud-live { display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-secondary,#64748B); letter-spacing:.2px; }
+.hud-dot  { width:7px; height:7px; border-radius:50%; background:#D0E4F7; transition:background .3s; }
+.hud-dot.active { background:var(--accent,#00C853); box-shadow:0 0 8px rgba(0,200,83,.55); animation:pulse-dot 1.5s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ── CAMERA STAGE ──────────────────────────────────── */
+.stage {
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+
+#video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+}
+#overlay-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: scaleX(-1);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Offline welcome */
+.welcome-screen {
+  position: relative; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; padding: 60px 40px;
+  text-align: center;
+  transition: opacity .4s;
+}
+.welcome-icon {
+  width: 96px; height: 96px;
+  background: #F0F7FF;
+  border: 1px solid var(--border,#D0E4F7);
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.6);
+}
+.welcome-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 38px; font-weight: 600;
+  line-height: 1.15;
+  color: var(--text-primary,#0D1B2A);
+}
+.welcome-title span { color: var(--primary,#007BFF); }
+.welcome-sub {
+  font-size: 14px; color: var(--text-secondary,#64748B);
+  max-width: 320px; line-height: 1.65;
+}
+
+/* Face oval guide */
+.oval-guide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 2;
+  opacity: .35; transition: opacity .5s;
+}
+.oval-guide svg { width: 42%; max-width: 240px; }
+.oval-guide.tracking { opacity: 0; }
+
+/* Stage bottom controls */
+.stage-footer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 14px 18px;
+  background: linear-gradient(transparent, rgba(0,0,0,.82));
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  z-index: 10;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+.stage-footer.visible { opacity: 1; pointer-events: all; }
+
+/* Stage top status */
+.stage-status {
+  position: absolute; top: 14px; left: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  z-index: 10;
+  opacity: 0; transition: opacity .3s;
+}
+.stage-status.visible { opacity: 1; }
+.status-pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(0,10,30,.72); backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,100,200,.15); color: var(--text-secondary,#64748B);
+  letter-spacing: .3px;
+}
+.status-pill.ok   { color:var(--accent,#00C853); border-color:rgba(0,200,83,.3); }
+.status-pill.warn { color:var(--primary,#007BFF); border-color:rgba(0,123,255,.25); }
+
+/* ── CUSTOMISE PANEL ───────────────────────────────── */
+.panel {
+  background: #fff;
+  border-left: 1px solid var(--border, #D0E4F7);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--border,#D0E4F7) transparent;
+}
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--border,#D0E4F7); border-radius: 2px; }
+
+.ps {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border, #D0E4F7);
+}
+.ps:last-child { border-bottom: none; }
+.ps-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-secondary, #64748B); margin-bottom: 13px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.shape-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 13px;
+  background: var(--primary-glow, rgba(0,123,255,.08));
+  border: 1px solid var(--border-primary, rgba(0,123,255,.2));
+  border-radius: var(--radius-md, 10px);
+  margin-bottom: 13px;
+  cursor: pointer; text-decoration: none; transition: all .15s;
+}
+.shape-chip:hover { background:rgba(0,123,255,.13); border-color:rgba(0,123,255,.35); }
+.shape-chip-text { flex:1; }
+.shape-chip-title { font-size:11px; color:var(--text-secondary,#64748B); margin-bottom:2px; }
+.shape-chip-val   { font-size:13px; font-weight:700; color:var(--primary,#007BFF); }
+.shape-chip-rec   { font-size:10px; color:var(--text-secondary,#64748B); margin-top:2px; line-height:1.4; }
+
+/* ── SHAPE GRID ────────────────────────────────────── */
+.shape-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+.shape-tile {
+  aspect-ratio: 1.5;
+  border: 1.5px solid var(--border,#D0E4F7);
+  border-radius: 9px;
+  background: #F0F7FF;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px;
+  cursor: pointer; transition: all .15s; overflow: hidden;
+  position: relative;
+}
+.shape-tile::after {
+  content:''; position:absolute; inset:0;
+  background:var(--primary-hover,rgba(0,123,255,.08)); opacity:0; transition:opacity .15s;
+}
+.shape-tile:hover { border-color:var(--primary,#007BFF); }
+.shape-tile:hover::after { opacity:1; }
+.shape-tile.active {
+  border-color: var(--primary,#007BFF);
+  box-shadow: 0 0 0 1px var(--primary,#007BFF), inset 0 0 20px rgba(0,123,255,.05);
+}
+.shape-tile.active::after { opacity:1; }
+.shape-tile svg   { width:52px; height:24px; position:relative; z-index:1; }
+.shape-tile-lbl   { font-size:9.5px; font-weight:600; color:var(--text-secondary,#64748B); letter-spacing:.3px; position:relative; z-index:1; }
+.shape-tile.active .shape-tile-lbl { color:var(--primary,#007BFF); }
+
+/* ── COLOUR PALETTE ────────────────────────────────── */
+.palette {
+  display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
+}
+.swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  cursor: pointer; transition: all .14s;
+  border: 2px solid transparent;
+  position: relative; flex-shrink: 0;
+}
+.swatch:hover { transform:scale(1.2); }
+.swatch.active { border-color:#fff; box-shadow: 0 0 0 2px var(--primary,#007BFF); }
+.swatch-custom {
+  background: conic-gradient(red 0,yellow 60deg,lime 120deg,cyan 180deg,blue 240deg,magenta 300deg,red 360deg);
+}
+.swatch-custom input[type=color] {
+  opacity:0; position:absolute; inset:0; cursor:pointer;
+  width:100%; height:100%; border-radius:50%;
+}
+
+/* ── TINTS ─────────────────────────────────────────── */
+.tints { display:flex; flex-wrap:wrap; gap:6px; }
+.tint-btn {
+  padding: 5px 11px; border-radius: 7px;
+  border: 1px solid var(--border,#D0E4F7);
+  background: transparent;
+  font-family: "Outfit",sans-serif; font-size: 11px; font-weight: 600;
+  color: var(--text-secondary,#64748B); cursor:pointer; transition:all .14s;
+  display: flex; align-items: center; gap: 5px;
+}
+.tint-btn:hover { border-color:var(--primary,#007BFF); color:var(--text-primary,#0D1B2A); }
+.tint-btn.active { border-color:var(--primary,#007BFF); color:var(--primary,#007BFF); background:var(--primary-hover,rgba(0,123,255,.08)); }
+.tint-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; border:1px solid rgba(0,100,200,.15); }
+
+/* ── SLIDERS ───────────────────────────────────────── */
+.sliders { display:flex; flex-direction:column; gap:14px; }
+.sl-row  { display:flex; flex-direction:column; gap:6px; }
+.sl-head { display:flex; justify-content:space-between; }
+.sl-name { font-size:11.5px; font-weight:500; color:var(--text-secondary,#64748B); }
+.sl-val  { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--primary,#007BFF); font-weight:600; }
+
+input[type=range] {
+  -webkit-appearance:none; width:100%; height:3px; border-radius:2px;
+  background:#E8F0FA; outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+  background:var(--primary,#007BFF); border:2px solid #fff;
+  box-shadow:0 0 0 3px rgba(0,123,255,.18); transition:all .12s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  transform:scale(1.25); box-shadow:0 0 0 5px rgba(0,123,255,.12);
+}
+
+/* ── SAVED DESIGNS ─────────────────────────────────── */
+.saved-list { display:flex; flex-direction:column; gap:7px; }
+.saved-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px;
+  background:#F0F7FF; border:1px solid var(--border,#D0E4F7); border-radius:var(--radius-md,10px);
+  cursor:pointer; transition:border-color .14s;
+}
+.saved-item:hover { border-color:var(--primary,#007BFF); }
+.saved-swatch { width:22px; height:22px; border-radius:50%; flex-shrink:0; border:2px solid rgba(0,100,200,.12); }
+.saved-info { flex:1; min-width:0; }
+.saved-name { font-size:12px; font-weight:600; color:var(--text-primary,#0D1B2A); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.saved-meta { font-size:10px; color:var(--text-secondary,#64748B); margin-top:1px; }
+.saved-empty { font-size:12px; color:var(--text-secondary,#64748B); text-align:center; padding:14px 0; }
+
+/* ── EXPORT CARD ───────────────────────────────────── */
+.export-box {
+  background: linear-gradient(135deg, rgba(0,123,255,.07), rgba(0,123,255,.03));
+  border: 1px solid var(--border-primary,rgba(0,123,255,.2));
+  border-radius: 10px;
+  padding: 14px 15px;
+}
+.export-box p { font-size:11.5px; color:var(--text-secondary,#64748B); line-height:1.55; margin-bottom:10px; }
+.export-btns  { display:flex; gap:7px; flex-wrap:wrap; }
+
+
+/* ── CAMERA SELECTOR ───────────────────────────────── */
+.cam-select-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: #F0F7FF; border: 1px solid var(--border,#D0E4F7);
+  border-radius: 9px; padding: 7px 12px;
+  width: 100%; margin-bottom: 10px;
+}
+.cam-select-icon { font-size: 15px; flex-shrink: 0; }
+.cam-select {
+  flex: 1; background: transparent; border: none;
+  color: var(--text-primary,#0D1B2A); font-family: 'Outfit', sans-serif;
+  font-size: 12.5px; font-weight: 500; outline: none; cursor: pointer;
+  min-width: 0;
+}
+.cam-select option { background: #1C2233; color: var(--text-primary,#0D1B2A); }
+.cam-select:disabled { opacity: .45; }
+/* ── UTILITY ───────────────────────────────────────── */
+.hidden { display:none!important; }
+@keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+.fadein { animation:fadein .35s ease-out both; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────────── -->
+<nav class="dashboard-nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="logo-icon">
+        <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+      </div>
+      <span class="brand-name">LENS CARE</span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard"     class="nav-link">Dashboard</a>
+      <a href="/eye_test"      class="nav-link">Eye Test</a>
+      <a href="/lens_frames"   class="nav-link">Frames</a>
+      <a href="/eye_insights"  class="nav-link">Insights</a>
+      <a href="/face_analyser" class="nav-link">Face Fit</a>
+      <a href="/frame_creator" class="nav-link active">Frame Creator</a>
+    </div>
+    <div class="nav-actions">
+      <span class="nav-user">{{ user.full_name or user.username }}</span>
+      <a href="/prescription" class="btn btn-grad-green btn-sm">+ New Rx</a>
+      <a href="/logout"       class="btn btn-outline    btn-sm">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── STUDIO ─────────────────────────────────────── -->
+<div class="studio">
+
+  <!-- ── TOP BAR ──────────────────────────────────── -->
+  <div class="studio-bar">
+    <div class="studio-logo">
+      <div class="studio-logo-badge">Studio</div>
+      <div class="studio-name">Frame <em>Creator</em></div>
+    </div>
+
+    <div class="bar-divider"></div>
+
+    <input class="bar-name-input" id="frame-name" type="text"
+           placeholder="Name your frame…" value="Classic Oval"
+           oninput="onNameChange()">
+
+    <div class="bar-divider"></div>
+
+    <!-- Live tracking indicator -->
+    <div class="hud-live">
+      <div class="hud-dot" id="live-dot"></div>
+      <span id="live-label">Camera off</span>
+    </div>
+
+    <div class="bar-actions">
+      <button class="btn btn-ghost btn-sm" id="mesh-btn" onclick="toggleMesh()">⬡ Mesh</button>
+      <button class="btn btn-ghost btn-sm" onclick="captureSnapshot()" id="snap-btn" disabled>📸 Snapshot</button>
+      <button class="btn btn-gold btn-sm"  onclick="saveDesign()">💾 Save Design</button>
+    </div>
+  </div>
+
+  <!-- ── CAMERA STAGE ──────────────────────────────── -->
+  <div class="stage" id="stage">
+
+    <!-- Welcome overlay -->
+    <div class="welcome-screen" id="welcome">
+      <div class="welcome-icon">🕶️</div>
+      <div class="welcome-title">Virtual<br><span>Try&#8209;On Studio</span></div>
+      <div class="welcome-sub">Activate your camera — frames are drawn live on your face using 468-point AI landmark tracking.</div>
+      <!-- Camera device picker -->
+      <div class="cam-select-wrap" style="max-width:300px;">
+        <span class="cam-select-icon">📷</span>
+        <select class="cam-select" id="cam-select-welcome" onchange="syncCamSelect(this.value)">
+          <option value="">Detecting cameras…</option>
+        </select>
+      </div>
+      <button class="btn btn-gold" style="padding:12px 28px;font-size:14px;" onclick="startCamera()">
+        ▶ &nbsp;Start Camera
+      </button>
+      <a href="/face_analyser" class="btn btn-ghost btn-sm">
+        Run Face Analyser first →
+      </a>
+    </div>
+
+    <!-- Video -->
+    <video id="video" autoplay playsinline muted class="hidden"></video>
+
+    <!-- Frame overlay canvas -->
+    <canvas id="overlay-canvas" class="hidden"></canvas>
+
+    <!-- Face alignment guide -->
+    <div class="oval-guide" id="oval-guide">
+      <svg viewBox="0 0 200 260" fill="none">
+        <ellipse cx="100" cy="130" rx="82" ry="112"
+          stroke="white" stroke-width="1.2" stroke-dasharray="5 4"/>
+      </svg>
+    </div>
+
+    <!-- Status pills -->
+    <div class="stage-status" id="stage-status">
+      <div class="status-pill ok" id="pill-live">● LIVE</div>
+      <div class="status-pill warn" id="pill-track">SEARCHING…</div>
+    </div>
+
+    <!-- Bottom controls -->
+    <div class="stage-footer" id="stage-footer">
+      <button class="btn btn-danger btn-sm" onclick="stopCamera()">■ Stop</button>
+      <button class="btn btn-ghost  btn-sm" onclick="captureSnapshot()">📸 Snapshot</button>
+      <button class="btn btn-teal"          onclick="saveDesign()">💾 Save Frame Design</button>
+    </div>
+
+  </div>
+
+  <!-- ── CUSTOMISE PANEL ───────────────────────────── -->
+  <div class="panel" id="panel">
+
+    <!-- Face shape from analyser -->
+    <div class="ps">
+      <div class="ps-label">Face Profile</div>
+      <a class="shape-chip" href="/face_analyser" id="shape-chip">
+        <span style="font-size:20px;">🔭</span>
+        <div class="shape-chip-text">
+          <div class="shape-chip-title">Your face shape</div>
+          <div class="shape-chip-val" id="chip-val">Not scanned yet</div>
+          <div class="shape-chip-rec" id="chip-rec">Run Face Analyser to auto-select best frames →</div>
+        </div>
+      </a>
+      <div class="cam-select-wrap">
+        <span class="cam-select-icon">📷</span>
+        <select class="cam-select" id="cam-select-panel" onchange="syncCamSelect(this.value)">
+          <option value="">Detecting cameras…</option>
+        </select>
+      </div>
+      <button class="btn btn-blue" style="width:100%" id="cam-btn" onclick="startCamera()">
+        ▶ &nbsp;Activate Camera
+      </button>
+    </div>
+
+    <!-- Frame shape -->
+    <div class="ps">
+      <div class="ps-label">Frame Shape</div>
+      <div class="shape-grid" id="shape-grid"></div>
+    </div>
+
+    <!-- Colour -->
+    <div class="ps">
+      <div class="ps-label">Frame Colour</div>
+      <div class="palette" id="palette"></div>
+    </div>
+
+    <!-- Lens tint -->
+    <div class="ps">
+      <div class="ps-label">Lens Tint</div>
+      <div class="tints" id="tints"></div>
+    </div>
+
+    <!-- Adjustments -->
+    <div class="ps">
+      <div class="ps-label">Adjustments</div>
+      <div class="sliders">
+        <div class="sl-row">
+          <div class="sl-head">
+            <span class="sl-name">Frame Thickness</span>
+            <span class="sl-val" id="v-thick">3px</span>
+          </div>
+          <input type="range" id="sl-thick" min="1" max="9" value="3"
+            oninput="document.getElementById('v-thick').textContent=this.value+'px';redraw()">
+        </div>
+        <div class="sl-row">
+          <div class="sl-head">
+            <span class="sl-name">Lens Size</span>
+            <span class="sl-val" id="v-size">100%</span>
+          </div>
+          <input type="range" id="sl-size" min="65" max="145" value="100"
+            oninput="document.getElementById('v-size').textContent=this.value+'%';redraw()">
+        </div>
+        <div class="sl-row">
+          <div class="sl-head">
+            <span class="sl-name">Bridge Width</span>
+            <span class="sl-val" id="v-bridge">12</span>
+          </div>
+          <input type="range" id="sl-bridge" min="3" max="32" value="12"
+            oninput="document.getElementById('v-bridge').textContent=this.value;redraw()">
+        </div>
+        <div class="sl-row">
+          <div class="sl-head">
+            <span class="sl-name">Vertical Offset</span>
+            <span class="sl-val" id="v-vert">0</span>
+          </div>
+          <input type="range" id="sl-vert" min="-28" max="28" value="0"
+            oninput="document.getElementById('v-vert').textContent=this.value;redraw()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Saved designs -->
+    <div class="ps">
+      <div class="ps-label" style="display:flex;justify-content:space-between;">
+        <span>Saved Designs</span>
+        <button class="btn btn-ghost btn-sm" onclick="clearSaved()" style="padding:2px 8px;font-size:10px;">Clear</button>
+      </div>
+      <div class="saved-list" id="saved-list">
+        <div class="saved-empty">No saved designs yet</div>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="ps">
+      <div class="ps-label">Export</div>
+      <div class="export-box">
+        <p>Take a snapshot of the live try-on as a full-quality PNG — includes your face with the frame rendered on top.</p>
+        <div class="export-btns">
+          <button class="btn btn-ghost btn-sm" onclick="captureSnapshot()" id="exp-btn" disabled>📸 Capture</button>
+          <button class="btn btn-gold  btn-sm" onclick="saveDesign()">💾 Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+</div><!-- /studio -->
+
+<!-- Hidden export canvas -->
+<canvas id="export-canvas" class="hidden"></canvas>
+
+<!-- ── SCRIPT ─────────────────────────────────────── -->
+<script>
+/* ═════════════════════════════════════════════════════
+   LENS CARE  —  FRAME CREATOR
+   Live MediaPipe Face Mesh  +  Canvas frame rendering
+   ═════════════════════════════════════════════════════ */
+
+/* ── Frame shape library ────────────────────────── */
+const SHAPES = {
+  oval: {
+    label: 'Oval',
+    bestFor: ['round','square','diamond','heart'],
+    svg: `<ellipse cx="13" cy="12" rx="10" ry="8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <ellipse cx="39" cy="12" rx="10" ry="8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="23" y1="12" x2="29" y2="12" stroke="currentColor" stroke-width="1.8"/>`,
+    draw(c, L, R, t, tint, bw) {
+      c.lineWidth = t;
+      drawEllipse(c, L, L.w*0.52, L.h*0.52);  c.stroke(); tintFill(c, tint, ()=>drawEllipse(c,L,L.w*0.52,L.h*0.52));
+      drawEllipse(c, R, R.w*0.52, R.h*0.52);  c.stroke(); tintFill(c, tint, ()=>drawEllipse(c,R,R.w*0.52,R.h*0.52));
+      bridge(c, L, R, bw); temples(c, L, R);
+    }
+  },
+  rectangle: {
+    label: 'Rectangle',
+    bestFor: ['oval','oblong','heart'],
+    svg: `<rect x="3" y="6" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <rect x="29" y="6" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="23" y1="13" x2="29" y2="13" stroke="currentColor" stroke-width="1.8"/>`,
+    draw(c, L, R, t, tint, bw) {
+      c.lineWidth = t;
+      rrect(c, L.x-L.w/2, L.y-L.h/2, L.w, L.h, 4); c.stroke(); tintFill(c, tint, ()=>rrect(c,L.x-L.w/2,L.y-L.h/2,L.w,L.h,4));
+      rrect(c, R.x-R.w/2, R.y-R.h/2, R.w, R.h, 4); c.stroke(); tintFill(c, tint, ()=>rrect(c,R.x-R.w/2,R.y-R.h/2,R.w,R.h,4));
+      bridge(c, L, R, bw); temples(c, L, R);
+    }
+  },
+  round: {
+    label: 'Round',
+    bestFor: ['square','oblong','diamond'],
+    svg: `<circle cx="13" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="39" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="22" y1="12" x2="30" y2="12" stroke="currentColor" stroke-width="1.8"/>`,
+    draw(c, L, R, t, tint, bw) {
+      c.lineWidth = t;
+      const lr=Math.min(L.w,L.h)*0.48, rr=Math.min(R.w,R.h)*0.48;
+      c.beginPath(); c.arc(L.x,L.y,lr,0,Math.PI*2); c.stroke(); tintFill(c,tint,()=>{c.beginPath();c.arc(L.x,L.y,lr,0,Math.PI*2);});
+      c.beginPath(); c.arc(R.x,R.y,rr,0,Math.PI*2); c.stroke(); tintFill(c,tint,()=>{c.beginPath();c.arc(R.x,R.y,rr,0,Math.PI*2);});
+      bridge(c, {x:L.x+lr,y:L.y}, {x:R.x-rr,y:R.y}, bw);
+      temples(c, {x:L.x-lr,y:L.y}, {x:R.x+rr,y:R.y});
+    }
+  },
+  aviator: {
+    label: 'Aviator',
+    bestFor: ['oval','square','heart','oblong'],
+    svg: `<path d="M3 9 Q3 20 13 21 Q23 20 23 9 Q23 4 13 4 Q3 4 3 9Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M29 9 Q29 20 39 21 Q49 20 49 9 Q49 4 39 4 Q29 4 29 9Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="23" y1="11" x2="29" y2="11" stroke="currentColor" stroke-width="1.8"/>`,
+    draw(c, L, R, t, tint, bw) {
+      c.lineWidth = t;
+      const lh = L.h*1.28, rh = R.h*1.28;
+      avPath(c, L.x, L.y, L.w, lh); c.stroke(); tintFill(c,tint,()=>avPath(c,L.x,L.y,L.w,lh));
+      avPath(c, R.x, R.y, R.w, rh); c.stroke(); tintFill(c,tint,()=>avPath(c,R.x,R.y,R.w,rh));
+      bridge(c, {x:L.x+L.w/2,y:L.y-lh*0.12}, {x:R.x-R.w/2,y:R.y-rh*0.12}, bw);
+      temples(c, {x:L.x-L.w/2,y:L.y-lh*0.12}, {x:R.x+R.w/2,y:R.y-rh*0.12});
+    }
+  },
+  cateye: {
+    label: 'Cat-Eye',
+    bestFor: ['round','square','diamond','heart'],
+    svg: `<path d="M3 14 Q5 6 13 5 Q21 5 23 12 Q21 19 13 19 Q5 18 3 14Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M29 14 Q31 6 39 5 Q47 5 49 12 Q47 19 39 19 Q31 18 29 14Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="23" y1="13" x2="29" y2="13" stroke="currentColor" stroke-width="1.8"/>`,
+    draw(c, L, R, t, tint, bw) {
+      c.lineWidth = t;
+      ceye(c, L.x, L.y, L.w, L.h, -1); c.stroke(); tintFill(c,tint,()=>ceye(c,L.x,L.y,L.w,L.h,-1));
+      ceye(c, R.x, R.y, R.w, R.h,  1); c.stroke(); tintFill(c,tint,()=>ceye(c,R.x,R.y,R.w,R.h, 1));
+      bridge(c, L, R, bw); temples(c, {x:L.x-L.w/2,y:L.y-L.h*.12}, {x:R.x+R.w/2,y:R.y-R.h*.12});
+    }
+  },
+  browline: {
+    label: 'Browline',
+    bestFor: ['oval','heart','diamond','oblong'],
+    svg: `<path d="M3 9 Q3 5 13 5 Q23 5 23 9" fill="none" stroke="currentColor" stroke-width="3.2"/>
+          <path d="M3 9 Q3 18 13 18 Q23 18 23 9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M29 9 Q29 5 39 5 Q49 5 49 9" fill="none" stroke="currentColor" stroke-width="3.2"/>
+          <path d="M29 9 Q29 18 39 18 Q49 18 49 9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="23" y1="12" x2="29" y2="12" stroke="currentColor" stroke-width="1.8"/>`,
+    draw(c, L, R, t, tint, bw) {
+      bl(c, L.x, L.y, L.w, L.h, t, tint);
+      bl(c, R.x, R.y, R.w, R.h, t, tint);
+      bridge(c, L, R, bw);
+      temples(c, {x:L.x-L.w/2,y:L.y-L.h*.22}, {x:R.x+R.w/2,y:R.y-R.h*.22});
+    }
+  }
+};
+
+const COLORS = [
+  { name:'Gold',        val:'#C8A84B' },
+  { name:'Silver',      val:'#A9B9CC' },
+  { name:'Matte Black', val:'#1A1C22' },
+  { name:'Tortoise',    val:'#7A4820' },
+  { name:'Rose Gold',   val:'#C98070' },
+  { name:'Navy',        val:'#1A3460' },
+  { name:'Crystal',     val:'#C8DFF2' },
+  { name:'Ruby',        val:'#9C1A2C' },
+  { name:'Olive',       val:'#4E5C2A' },
+];
+
+const TINTS = [
+  { name:'Clear',    alpha:0,    fill:'rgba(255,255,255,' },
+  { name:'Smoke',    alpha:.36,  fill:'rgba(20,22,28,' },
+  { name:'Brown',    alpha:.30,  fill:'rgba(80,44,14,' },
+  { name:'Blue',     alpha:.28,  fill:'rgba(0,48,160,' },
+  { name:'Green',    alpha:.26,  fill:'rgba(14,80,24,' },
+  { name:'Mirror',   alpha:.42,  fill:'rgba(160,200,255,' },
+];
+
+const BEST_SHAPE = { oval:'oval', round:'rectangle', square:'round', heart:'browline', oblong:'rectangle', diamond:'cateye', diamond:'cateye' };
+
+/* ── App state ──────────────────────────────────── */
+const state = {
+  shape: 'oval', color: '#C8A84B', tintIdx: 0,
+  thick: 3, size: 100, bridge: 12, vert: 0,
+};
+
+let faceMesh = null, streaming = false, lastLM = null, showMesh = false;
+const video  = document.getElementById('video');
+const canvas = document.getElementById('overlay-canvas');
+const ctx    = canvas.getContext('2d');
+
+/* ── Build panel UI ──────────────────────────────── */
+function buildPanel() {
+  // Shapes
+  const sg = document.getElementById('shape-grid');
+  sg.innerHTML = '';
+  Object.entries(SHAPES).forEach(([k,sh]) => {
+    const d = document.createElement('div');
+    d.className = 'shape-tile' + (k===state.shape?' active':'');
+    d.innerHTML = `<svg viewBox="0 0 52 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+        style="color:${k===state.shape?'#C8A84B':'rgba(238,242,250,.45)'}">
+        ${sh.svg}</svg>
+      <span class="shape-tile-lbl">${sh.label}</span>`;
+    d.onclick = () => { state.shape=k; buildPanel(); redraw(); };
+    sg.appendChild(d);
+  });
+
+  // Colors
+  const pal = document.getElementById('palette');
+  pal.innerHTML = '';
+  COLORS.forEach(c => {
+    const s = document.createElement('div');
+    s.className = 'swatch' + (c.val===state.color?' active':'');
+    s.style.background = c.val; s.title = c.name;
+    s.onclick = () => { state.color=c.val; buildPanel(); redraw(); };
+    pal.appendChild(s);
+  });
+  // Custom picker
+  const cust = document.createElement('div');
+  cust.className = 'swatch swatch-custom'; cust.title = 'Custom';
+  cust.innerHTML = `<input type="color" value="${state.color}"
+    oninput="state.color=this.value; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); redraw();">`;
+  pal.appendChild(cust);
+
+  // Tints
+  const tr = document.getElementById('tints');
+  tr.innerHTML = '';
+  TINTS.forEach((t,i) => {
+    const b = document.createElement('button');
+    b.className = 'tint-btn' + (i===state.tintIdx?' active':'');
+    const dotBg = i===0 ? 'rgba(0,100,200,.08)' :
+                  i===5 ? 'linear-gradient(135deg,#90B8FF,#6070D0)' :
+                  t.fill + '.65)';
+    b.innerHTML = `<span class="tint-dot" style="background:${dotBg}"></span>${t.name}`;
+    b.onclick = () => { state.tintIdx=i; buildPanel(); redraw(); };
+    tr.appendChild(b);
+  });
+
+  renderSavedList();
+}
+
+/* ── Camera device enumeration ───────────────────── */
+let selectedDeviceId = '';   // empty = browser default
+
+function syncCamSelect(val) {
+  selectedDeviceId = val;
+  // Keep both dropdowns in sync
+  ['cam-select-welcome','cam-select-panel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+}
+
+async function populateCameras() {
+  try {
+    // Request permission first so labels are visible (not "Camera 1")
+    const tmp = await navigator.mediaDevices.getUserMedia({ video:true, audio:false }).catch(()=>null);
+    if (tmp) tmp.getTracks().forEach(t=>t.stop());
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cams = devices.filter(d => d.kind === 'videoinput');
+
+    ['cam-select-welcome','cam-select-panel'].forEach(selId => {
+      const sel = document.getElementById(selId);
+      if (!sel) return;
+      sel.innerHTML = '';
+
+      if (!cams.length) {
+        sel.innerHTML = '<option value="">No cameras found</option>';
+        return;
+      }
+
+      cams.forEach((cam, i) => {
+        const opt = document.createElement('option');
+        opt.value = cam.deviceId;
+        // Clean up label — strip "(HD)" noise, fall back to "Camera N"
+        opt.textContent = cam.label
+          ? cam.label.replace(/\s*\(0x[^)]+\)/g,'').replace(/\s{2,}/g,' ').trim()
+          : `Camera ${i + 1}`;
+        sel.appendChild(opt);
+      });
+
+      // Default to first camera; restore any previously chosen device
+      if (selectedDeviceId && cams.find(c=>c.deviceId===selectedDeviceId)) {
+        sel.value = selectedDeviceId;
+      } else {
+        selectedDeviceId = cams[0].deviceId;
+        sel.value = selectedDeviceId;
+      }
+    });
+  } catch(e) {
+    console.warn('Camera enumeration failed:', e);
+  }
+}
+
+/* ── Camera ──────────────────────────────────────── */
+async function startCamera() {
+  document.getElementById('cam-btn').disabled = true;
+  document.getElementById('cam-btn').textContent = 'Starting…';
+  try {
+    // Build video constraints — use chosen deviceId if available,
+    // otherwise just ask for any camera (NO facingMode on desktop)
+    const videoConstraints = {
+      width:  { ideal: 1280 },
+      height: { ideal: 720  },
+    };
+    if (selectedDeviceId) {
+      videoConstraints.deviceId = { exact: selectedDeviceId };
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: videoConstraints, audio: false
+    });
+    video.srcObject = stream;
+    await video.play();
+    streaming = true;
+
+    // Update selectedDeviceId to what actually got used
+    const track = stream.getVideoTracks()[0];
+    if (track) {
+      const settings = track.getSettings();
+      if (settings.deviceId) selectedDeviceId = settings.deviceId;
+      syncCamSelect(selectedDeviceId);
+    }
+
+    document.getElementById('welcome').style.display = 'none';
+    video.classList.remove('hidden');
+    canvas.classList.remove('hidden');
+    document.getElementById('oval-guide').classList.remove('hidden');
+    document.getElementById('stage-status').classList.add('visible');
+    document.getElementById('stage-footer').classList.add('visible');
+
+    document.getElementById('live-dot').classList.add('active');
+    document.getElementById('live-label').textContent = 'Searching…';
+    document.getElementById('snap-btn').disabled = false;
+    document.getElementById('exp-btn').disabled = false;
+
+    document.getElementById('cam-btn').textContent = '● Live';
+    document.getElementById('cam-btn').className = 'btn btn-teal';
+
+    await loadFaceMesh();
+  } catch(err) {
+    document.getElementById('cam-btn').disabled = false;
+    document.getElementById('cam-btn').textContent = '▶ Activate Camera';
+    document.getElementById('cam-btn').className = 'btn btn-blue';
+    const msg = {
+      NotFoundError:    'No camera found on this device. Check your camera is connected.',
+      NotAllowedError:  'Camera permission denied — click the camera icon in your browser address bar to allow.',
+      NotReadableError: 'Camera is in use by another application — close Zoom/Teams/OBS and try again.',
+      OverconstrainedError: 'Selected camera not available — choose a different one from the dropdown.',
+    }[err.name] || ('Camera error: ' + err.message);
+    alert(msg);
+  }
+}
+
+async function loadFaceMesh() {
+  faceMesh = new FaceMesh({
+    locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`
+  });
+  faceMesh.setOptions({ maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:.5, minTrackingConfidence:.5 });
+  faceMesh.onResults(handleResults);
+  await faceMesh.send({ image: video });
+  (function loop() {
+    if (!streaming) return;
+    faceMesh.send({ image: video }).catch(()=>{});
+    requestAnimationFrame(loop);
+  })();
+}
+
+function handleResults(res) {
+  canvas.width  = video.videoWidth  || 1280;
+  canvas.height = video.videoHeight || 720;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (res.multiFaceLandmarks?.length) {
+    lastLM = res.multiFaceLandmarks[0];
+    document.getElementById('pill-track').textContent = '✓ FACE LOCKED';
+    document.getElementById('pill-track').className = 'status-pill ok';
+    document.getElementById('live-label').textContent = 'Tracking';
+    document.getElementById('oval-guide').classList.add('tracking');
+    renderFrame(lastLM);
+    if (showMesh) renderMesh(lastLM);
+  } else {
+    lastLM = null;
+    document.getElementById('pill-track').textContent = 'SEARCHING…';
+    document.getElementById('pill-track').className = 'status-pill warn';
+    document.getElementById('live-label').textContent = 'No face';
+    document.getElementById('oval-guide').classList.remove('tracking');
+  }
+}
+
+function stopCamera() {
+  streaming = false; lastLM = null;
+  if (video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop());
+  video.srcObject = null;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ['video','overlay-canvas'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('oval-guide').classList.remove('hidden','tracking');
+  document.getElementById('stage-status').classList.remove('visible');
+  document.getElementById('stage-footer').classList.remove('visible');
+  document.getElementById('welcome').style.display = '';
+  document.getElementById('live-dot').classList.remove('active');
+  document.getElementById('live-label').textContent = 'Camera off';
+  document.getElementById('snap-btn').disabled = true;
+  document.getElementById('exp-btn').disabled = true;
+  document.getElementById('cam-btn').disabled = false;
+  document.getElementById('cam-btn').textContent = '▶ Activate Camera';
+  document.getElementById('cam-btn').className = 'btn btn-blue';
+}
+
+function redraw() { if (lastLM) renderFrame(lastLM); }
+function onNameChange() {}
+
+/* ── Core frame renderer ─────────────────────────── */
+function renderFrame(lm) {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  function pt(i){ return { x: lm[i].x*W, y: lm[i].y*H }; }
+
+  // Refined iris landmarks (468 = left iris center, 473 = right)
+  const li = pt(468), ri = pt(473);
+  const ipd = Math.hypot(ri.x-li.x, ri.y-li.y);
+
+  const sc     = +document.getElementById('sl-size').value / 100;
+  const bwRaw  = +document.getElementById('sl-bridge').value;
+  const vOff   = +document.getElementById('sl-vert').value * (ipd/100);
+  const thick  = +document.getElementById('sl-thick').value;
+
+  const lw = ipd * 0.90 * sc;
+  const lh = lw  * 0.63;
+  const bw = bwRaw * (ipd / 180);
+
+  const L = { x:li.x, y:li.y + vOff, w:lw, h:lh };
+  const R = { x:ri.x, y:ri.y + vOff, w:lw, h:lh };
+
+  ctx.strokeStyle = state.color;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+
+  SHAPES[state.shape].draw(ctx, L, R, thick, TINTS[state.tintIdx], bw);
+}
+
+/* ── Drawing primitives ──────────────────────────── */
+function drawEllipse(c, p, rx, ry) {
+  c.beginPath(); c.ellipse(p.x, p.y, rx, ry, 0, 0, Math.PI*2); c.closePath();
+}
+function rrect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y); c.closePath();
+}
+function avPath(c, cx, cy, w, h) {
+  c.beginPath();
+  c.moveTo(cx,cy-h/2);
+  c.bezierCurveTo(cx+w/2,cy-h/2, cx+w/2,cy, cx+w/2,cy+h*.12);
+  c.quadraticCurveTo(cx+w/2,cy+h/2, cx,cy+h/2);
+  c.quadraticCurveTo(cx-w/2,cy+h/2, cx-w/2,cy+h*.12);
+  c.bezierCurveTo(cx-w/2,cy, cx-w/2,cy-h/2, cx,cy-h/2);
+  c.closePath();
+}
+function ceye(c, cx, cy, w, h, side) {
+  const ox=cx+side*w/2, ix=cx-side*w/2, lift=h*.40;
+  c.beginPath();
+  c.moveTo(ix, cy);
+  c.bezierCurveTo(ix, cy-h/2, ox, cy-h/2-lift, ox, cy-lift);
+  c.bezierCurveTo(ox, cy+h/3, ix, cy+h/2, ix, cy);
+  c.closePath();
+}
+function bl(c, cx, cy, w, h, t, tint) {
+  // thick top bar
+  c.lineWidth = t * 2.4;
+  c.beginPath();
+  c.moveTo(cx-w/2, cy);
+  c.bezierCurveTo(cx-w/2, cy-h/2, cx+w/2, cy-h/2, cx+w/2, cy);
+  c.stroke();
+  // thin bottom
+  c.lineWidth = t * 0.65;
+  c.beginPath();
+  c.moveTo(cx-w/2, cy);
+  c.bezierCurveTo(cx-w/2, cy+h/2, cx+w/2, cy+h/2, cx+w/2, cy);
+  c.stroke();
+  // fill
+  tintFill(c, tint, () => {
+    c.beginPath();
+    c.moveTo(cx-w/2,cy);
+    c.bezierCurveTo(cx-w/2,cy-h/2,cx+w/2,cy-h/2,cx+w/2,cy);
+    c.bezierCurveTo(cx+w/2,cy+h/2,cx-w/2,cy+h/2,cx-w/2,cy);
+    c.closePath();
+  });
+}
+function bridge(c, L, R, bw) {
+  const lInner = { x: L.x + L.w/2, y: L.y };
+  const rInner = { x: R.x - R.w/2, y: R.y };
+  const mx=(lInner.x+rInner.x)/2, my=(lInner.y+rInner.y)/2;
+  c.beginPath();
+  c.moveTo(lInner.x, lInner.y);
+  c.quadraticCurveTo(mx, my - bw*.55, rInner.x, rInner.y);
+  c.stroke();
+}
+function temples(c, lOuter, rOuter) {
+  const tlen = Math.abs(rOuter.x - lOuter.x) * 0.52;
+  c.beginPath(); c.moveTo(lOuter.x, lOuter.y); c.lineTo(lOuter.x-tlen, lOuter.y + tlen*.07); c.stroke();
+  c.beginPath(); c.moveTo(rOuter.x, rOuter.y); c.lineTo(rOuter.x+tlen, rOuter.y + tlen*.07); c.stroke();
+}
+function tintFill(c, tint, pathFn) {
+  if (tint.alpha === 0) return;
+  c.save(); pathFn(); c.fillStyle = tint.fill + tint.alpha + ')'; c.fill(); c.restore();
+}
+function renderMesh(lm) {
+  drawConnectors(ctx, lm, FACEMESH_TESSELATION, { color:'rgba(255,255,255,.05)', lineWidth:.6 });
+  drawConnectors(ctx, lm, FACEMESH_RIGHT_EYE,   { color:'rgba(80,180,255,.5)', lineWidth:1 });
+  drawConnectors(ctx, lm, FACEMESH_LEFT_EYE,    { color:'rgba(80,180,255,.5)', lineWidth:1 });
+  drawConnectors(ctx, lm, FACEMESH_FACE_OVAL,   { color:'rgba(200,168,75,.25)', lineWidth:1 });
+}
+
+/* ── Export ──────────────────────────────────────── */
+function captureSnapshot() {
+  if (!streaming) { alert('Start camera first.'); return; }
+  const ec = document.getElementById('export-canvas');
+  ec.width = canvas.width; ec.height = canvas.height;
+  const ectx = ec.getContext('2d');
+  ectx.save();
+  ectx.translate(ec.width,0); ectx.scale(-1,1); // un-mirror
+  ectx.drawImage(video,0,0,ec.width,ec.height);
+  ectx.restore();
+  ectx.save();
+  ectx.translate(ec.width,0); ectx.scale(-1,1);
+  ectx.drawImage(canvas,0,0);
+  ectx.restore();
+  const a = document.createElement('a');
+  a.download = (document.getElementById('frame-name').value || 'frame') + '-tryon.png';
+  a.href = ec.toDataURL('image/png');
+  a.click();
+}
+
+/* ── Save / Load designs ─────────────────────────── */
+function saveDesign() {
+  const design = {
+    name:     document.getElementById('frame-name').value || 'My Frame',
+    shape:    state.shape,
+    color:    state.color,
+    tintIdx:  state.tintIdx,
+    thick:    document.getElementById('sl-thick').value,
+    size:     document.getElementById('sl-size').value,
+    bridge:   document.getElementById('sl-bridge').value,
+    vert:     document.getElementById('sl-vert').value,
+    savedAt:  new Date().toLocaleString(),
+  };
+  const all = getSaved();
+  // Replace if same name
+  const idx = all.findIndex(d=>d.name===design.name);
+  if (idx>=0) all[idx]=design; else all.unshift(design);
+  localStorage.setItem('lc_frames', JSON.stringify(all.slice(0,12)));
+  renderSavedList();
+  // Flash the button
+  const btn = document.getElementById('snap-btn');
+  const orig = btn.textContent;
+  document.querySelectorAll('.stage-footer .btn-teal, .bar-actions .btn-gold').forEach(b => {
+    const t = b.textContent; b.textContent = '✓ Saved!';
+    setTimeout(()=>b.textContent=t, 1800);
+  });
+}
+function getSaved() {
+  try { return JSON.parse(localStorage.getItem('lc_frames') || '[]'); } catch(e) { return []; }
+}
+function loadDesign(d) {
+  document.getElementById('frame-name').value = d.name;
+  state.shape = d.shape; state.color = d.color; state.tintIdx = d.tintIdx;
+  document.getElementById('sl-thick').value  = d.thick;  document.getElementById('v-thick').textContent  = d.thick+'px';
+  document.getElementById('sl-size').value   = d.size;   document.getElementById('v-size').textContent   = d.size+'%';
+  document.getElementById('sl-bridge').value = d.bridge; document.getElementById('v-bridge').textContent = d.bridge;
+  document.getElementById('sl-vert').value   = d.vert;   document.getElementById('v-vert').textContent   = d.vert;
+  buildPanel(); redraw();
+}
+function clearSaved() {
+  if (!confirm('Clear all saved frame designs?')) return;
+  localStorage.removeItem('lc_frames'); renderSavedList();
+}
+function renderSavedList() {
+  const list = document.getElementById('saved-list');
+  const all  = getSaved();
+  if (!all.length) { list.innerHTML='<div class="saved-empty">No saved designs yet</div>'; return; }
+  list.innerHTML = '';
+  all.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'saved-item fadein';
+    el.innerHTML = `
+      <div class="saved-swatch" style="background:${d.color}"></div>
+      <div class="saved-info">
+        <div class="saved-name">${d.name}</div>
+        <div class="saved-meta">${SHAPES[d.shape]?.label || d.shape} · ${d.savedAt}</div>
+      </div>`;
+    el.onclick = () => loadDesign(d);
+    list.appendChild(el);
+  });
+}
+
+/* ── Mesh toggle ─────────────────────────────────── */
+function toggleMesh() {
+  showMesh = !showMesh;
+  const b = document.getElementById('mesh-btn');
+  b.style.color = showMesh ? 'var(--primary,#007BFF)' : '';
+  b.style.borderColor = showMesh ? 'var(--primary,#007BFF)' : '';
+}
+
+/* ── Load face shape from face_analyser session ──── */
+function loadFaceProfile() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem('faceShape') || '{}');
+    if (!d.shape) return;
+    const lbl = d.label || (d.shape.charAt(0).toUpperCase()+d.shape.slice(1));
+    const recs = {
+      oval:    'Oval, Rectangle, Browline suit you',
+      round:   'Rectangle, Cat-Eye, Hexagon suit you',
+      square:  'Round, Oval, Aviator soften your jaw',
+      heart:   'Browline, Aviator, Round balance your forehead',
+      oblong:  'Rectangle, Browline, Cat-Eye add width',
+      diamond: 'Cat-Eye, Browline highlight your cheekbones',
+    };
+    document.getElementById('chip-val').textContent = lbl + ' Face';
+    document.getElementById('chip-rec').textContent = recs[d.shape] || 'All frames will suit you';
+    // Auto-select best shape
+    if (BEST_SHAPE[d.shape]) { state.shape = BEST_SHAPE[d.shape]; }
+    // Dismiss chip href since we already have the data
+    document.getElementById('shape-chip').removeAttribute('href');
+    document.getElementById('shape-chip').style.cursor = 'default';
+  } catch(e) {}
+}
+
+/* ── Boot ────────────────────────────────────────── */
+buildPanel();
+loadFaceProfile();
+populateCameras();  // list all cameras on this device
+</script>
+</body>
+</html>

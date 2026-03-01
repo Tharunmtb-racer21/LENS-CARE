@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .result-hero {
+            background: linear-gradient(135deg, var(--phoenix-blue) 0%, var(--phoenix-purple) 100%);
+            padding: 60px 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: slideDown 0.6s ease;
+        }
+        
+        .result-hero h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .result-hero p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+        
+        .diagnosis-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--phoenix-orange);
+            margin-bottom: 30px;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .diagnosis-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .diagnosis-title {
+            font-size: 36px;
+            color: var(--phoenix-orange);
+            margin-bottom: 15px;
+        }
+        
+        .diagnosis-explanation {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .lens-recommendation {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 30px;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--phoenix-blue);
+        }
+        
+        .lens-recommendation h3 {
+            color: var(--phoenix-cyan);
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Phoenix Animation -->
+    <div class="page-phoenix"></div>
+    
+    <div class="container">
+        <!-- Result Hero -->
+        <div class="result-hero">
+            <h1>✅ Analysis Complete!</h1>
+            <p>Here's what we found about your vision</p>
+        </div>
+
+        <!-- Main Diagnosis Card -->
+        <div class="diagnosis-card">
+            <div class="diagnosis-icon">👁️</div>
+            <h2 class="diagnosis-title">{{ specs.diagnosis }}</h2>
+            
+            <div class="diagnosis-explanation">
+                {% if 'Myopia' in specs.diagnosis %}
+                    You have <strong>Myopia (Nearsightedness)</strong>. This means you can see nearby objects clearly, but distant objects appear blurry. This is very common and easily corrected with glasses or contact lenses.
+                {% elif 'Hyperopia' in specs.diagnosis %}
+                    You have <strong>Hyperopia (Farsightedness)</strong>. This means distant objects are clearer than nearby ones. You may experience eye strain when reading or doing close work.
+                {% elif 'Astigmatism' in specs.diagnosis and 'Myopia' not in specs.diagnosis and 'Hyperopia' not in specs.diagnosis %}
+                    You have <strong>Astigmatism</strong>. This means your cornea has an irregular shape, causing blurred or distorted vision at all distances. It's easily corrected with specialized lenses.
+                {% elif 'Presbyopia' in specs.diagnosis %}
+                    You have <strong>Presbyopia</strong>. This is a natural age-related condition where your eyes gradually lose the ability to focus on nearby objects. Reading glasses or bifocals will help.
+                {% else %}
+                    Your vision appears to be <strong>Normal</strong>. No significant refractive errors detected.
+                {% endif %}
+            </div>
+
+            <!-- Lens Recommendation -->
+            <div class="lens-recommendation">
+                <h3>💎 Recommended Lens Type</h3>
+                <p style="font-size: 20px; font-weight: 600; color: var(--phoenix-cyan); margin: 15px 0;">
+                    {{ specs.lens_type }}
+                </p>
+                <p style="font-size: 16px; opacity: 0.8;">
+                    {{ specs.lens_material }}
+                </p>
+            </div>
+
+            <!-- Simple Advice -->
+            {% if specs.recommendations %}
+            <div style="margin-top: 30px; padding: 20px; background: rgba(255, 107, 0, 0.1); border-radius: var(--radius-md); border-left: 4px solid var(--phoenix-orange);">
+                <h3 style="color: var(--phoenix-orange); margin-bottom: 10px;">💡 Our Recommendations</h3>
+                <ul style="text-align: left; padding-left: 20px;">
+                    {% for rec in specs.recommendations %}
+                    <li style="margin: 8px 0; font-size: 15px;">{{ rec }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+            <a href="/dashboard" class="btn btn-primary btn-large">📊 View Dashboard</a>
+            <a href="/prescription" class="btn btn-success btn-large">➕ Add Another</a>
+            <a href="/view_all_records" class="btn btn-info btn-large">📋 View All Records</a>
+        </div>
+
+        <!-- Medical Disclaimer -->
+        <div class="alert alert-warning" style="margin-top: 30px;">
+            <strong>⚠️ Important:</strong> This is an automated analysis based on your prescription data. Please consult with a licensed eye care professional for accurate diagnosis and treatment.
+        </div>
+    </div>
+</body>
+</html>

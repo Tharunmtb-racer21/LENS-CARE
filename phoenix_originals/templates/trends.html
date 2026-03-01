@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Prescription Trends - Lens Care{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>📈 Prescription Trends</h1>
+        <p>View patient prescription progression over time</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="form-card" style="max-width: 600px; margin: 0 auto;">
+        <h3>View Patient Progression</h3>
+        <div class="form-group">
+            <label>Patient ID</label>
+            <input type="text" id="trendSearchId" class="form-control" placeholder="Enter Patient ID">
+        </div>
+        <div class="form-actions">
+            <button onclick="viewTrends()" class="btn btn-primary">View Trends</button>
+            <a href="/" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+    <div id="trendsResults" style="display: none; margin-top: 30px;">
+        <div class="chart-card">
+            <h3 style="text-align: center;">Prescription Progression Over Time</h3>
+            <canvas id="trendsChart" width="800" height="400"></canvas>
+        </div>
+
+        <div id="trendsAnalysis" class="analysis-card" style="margin-top: 30px;">
+            <!-- Analysis will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/trends.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lens Care — Your Eye Health Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ── Public landing hero gradient ── */
+        .public-hero {
+            background: linear-gradient(150deg, #E3F2FD 0%, #ffffff 55%, #E8F5E9 100%);
+            border-radius: 24px;
+            border: 1px solid #D0E4F7;
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 48px;
+        }
+        .public-hero::before {
+            content: '';
+            position: absolute;
+            top: -120px; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0,123,255,0.07) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .hero-eye-badge {
+            width: 100px; height: 100px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid #007BFF;
+            box-shadow: 0 0 0 8px rgba(0,123,255,0.1), 0 8px 32px rgba(0,123,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 28px;
+            overflow: hidden;
+        }
+        .hero-eye-badge img { width: 68px; height: 68px; object-fit: contain; }
+        .public-hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 52px; font-weight: 800;
+            color: #0D1B2A;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+        .public-hero h1 span { color: #007BFF; }
+        .public-hero p {
+            font-size: 18px; color: #3A5A7C;
+            max-width: 520px; margin: 0 auto 36px;
+            line-height: 1.7;
+        }
+        .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+        /* ── Public feature cards ── */
+        .pub-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+        @media(max-width:860px){ .pub-features { grid-template-columns: 1fr 1fr; } }
+        @media(max-width:560px){ .pub-features { grid-template-columns: 1fr; } }
+
+        .pub-card {
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 16px;
+            padding: 28px 22px;
+            transition: all 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .pub-card.visible { opacity: 1; transform: translateY(0); }
+        .pub-card:hover {
+            border-color: rgba(0,123,255,0.3);
+            box-shadow: 0 8px 28px rgba(0,123,255,0.12);
+            transform: translateY(-4px);
+        }
+        .pub-card-icon {
+            font-size: 32px;
+            width: 60px; height: 60px;
+            background: #E3F2FD;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+            border: 1px solid #D0E4F7;
+        }
+        .pub-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #0D1B2A; }
+        .pub-card p  { font-size: 13px; color: #3A5A7C; line-height: 1.6; }
+
+        /* ── Lens frames preview section ── */
+        .frames-preview-section {
+            background: linear-gradient(135deg, #007BFF 0%, #0288D1 100%);
+            border-radius: 24px;
+            padding: 56px 40px;
+            text-align: center;
+            margin-bottom: 48px;
+            color: #fff;
+        }
+        .frames-preview-section h2 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .frames-preview-section p  { color: rgba(255,255,255,0.88); font-size: 15px; margin-bottom: 32px; }
+
+        .frames-grid-preview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        @media(max-width:700px){ .frames-grid-preview { grid-template-columns: repeat(2,1fr); } }
+
+        .frame-preview-card {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 14px;
+            padding: 20px 14px;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }
+        .frame-preview-card:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+        }
+        .frame-preview-card .frame-emoji { font-size: 36px; display: block; margin-bottom: 10px; }
+        .frame-preview-card h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .frame-preview-card p  { font-size: 12px; color: rgba(255,255,255,0.8); }
+
+        /* ── Login prompt for guests ── */
+        .guest-prompt {
+            background: #F4F8FF;
+            border: 1.5px dashed #90CAF9;
+            border-radius: 16px;
+            padding: 36px;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .guest-prompt h3 { font-size: 20px; margin-bottom: 8px; }
+        .guest-prompt p  { font-size: 14px; color: #3A5A7C; margin-bottom: 20px; }
+        .guest-prompt .lock-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+
+        /* ── How it works steps ── */
+        .steps-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+        @media(max-width:720px){ .steps-row { grid-template-columns: repeat(2,1fr); } }
+
+        .step-item { text-align: center; }
+        .step-circle {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #007BFF 0%, #0288D1 100%);
+            border-radius: 50%;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            box-shadow: 0 4px 14px rgba(0,123,255,0.3);
+        }
+        .step-item h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+        .step-item p  { font-size: 12px; color: #7A98B8; line-height: 1.5; }
+
+        /* ── Section headings ── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #007BFF;
+            margin-bottom: 8px;
+        }
+        .section-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #0D1B2A;
+        }
+        .section-sub {
+            font-size: 15px;
+            color: #3A5A7C;
+            margin-bottom: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ── PUBLIC HEADER ── -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care Eye">
+                </div>
+                <h1>LENS CARE</h1>
+            </div>
+            <div class="header-buttons">
+                <a href="/login"    class="btn btn-outline">Sign In</a>
+                <a href="/register" class="btn btn-primary">Get Started Free</a>
+            </div>
+        </header>
+
+        <!-- ── HERO ── -->
+        <section class="public-hero">
+            <div class="hero-eye-badge">
+                <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Eye">
+            </div>
+            <h1>Your Complete<br><span>Eye Health</span> Platform</h1>
+            <p>Track prescriptions, take online eye tests, explore lens frames, and get expert recommendations — all in one place.</p>
+            <div class="hero-cta">
+                <a href="/register" class="btn btn-primary btn-large">Create Free Account</a>
+                <a href="/login"    class="btn btn-secondary btn-large">Sign In →</a>
+            </div>
+        </section>
+
+        <!-- ── FEATURES ── -->
+        <div style="margin-bottom: 20px;">
+            <p class="section-label">What you get</p>
+            <h2 class="section-heading">Everything your eyes need</h2>
+            <p class="section-sub">From online tests to lens shopping — all in one clinical platform</p>
+        </div>
+        <div class="pub-features">
+            <div class="pub-card">
+                <div class="pub-card-icon">🔬</div>
+                <h3>Online Eye Tests</h3>
+                <p>Take color blindness and visual acuity tests from your screen. Instant results, medically-grounded screening.</p>
+            </div>
+            <div class="pub-card">
+                <div class="pub-card-icon">📋</div>
+                <h3>Prescription Tracking</h3>
+                <p>Log every visit. Track how your vision changes year over year with interactive charts.</p>
+            </div>
+            <div class="pub-card">
+                <div class="pub-card-icon">🕶️</div>
+                <h3>Lens Frame Explorer</h3>
+                <p>Browse frame styles curated for your face shape and prescription strength. Find your perfect pair.</p>
+            </div>
+            <div class="pub-card">
+                <div class="pub-card-icon">💎</div>
+                <h3>Smart Lens Recommendations</h3>
+                <p>Our engine calculates the right lens material and coating based on your exact prescription power.</p>
+            </div>
+            <div class="pub-card">
+                <div class="pub-card-icon">📊</div>
+                <h3>Vision Trend Analysis</h3>
+                <p>See your myopia progression or stabilization visualized clearly. Know when to book your next exam.</p>
+            </div>
+            <div class="pub-card">
+                <div class="pub-card-icon">👨‍⚕️</div>
+                <h3>Doctor Portal</h3>
+                <p>Optometrists get a dedicated dashboard to manage patients, view all records, and track histories.</p>
+            </div>
+        </div>
+
+        <!-- ── LOCKED CONTENT PROMPT ── -->
+        <div class="guest-prompt">
+            <span class="lock-icon">🔐</span>
+            <h3>Eye Tests, Dashboard & Records — for members only</h3>
+            <p>Create a free account in 30 seconds to access your personal eye health dashboard, take tests, and explore lens recommendations.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <a href="/register" class="btn btn-primary">Create Free Account</a>
+                <a href="/login"    class="btn btn-outline">Already a member? Sign In</a>
+            </div>
+        </div>
+
+        <!-- ── FRAMES PREVIEW ── -->
+        <div class="frames-preview-section">
+            <h2>🕶️ Explore Our Lens Frame Collection</h2>
+            <p>Browse hundreds of frames from India's top optical centres — curated for your prescription and style</p>
+            <div class="frames-grid-preview">
+                <div class="frame-preview-card">
+                    <span class="frame-emoji">🟤</span>
+                    <h4>Classic Wayfarer</h4>
+                    <p>Timeless acetate. Suits oval & round faces.</p>
+                </div>
+                <div class="frame-preview-card">
+                    <span class="frame-emoji">🔵</span>
+                    <h4>Metal Rimless</h4>
+                    <p>Ultra-light titanium. Perfect for high power lenses.</p>
+                </div>
+                <div class="frame-preview-card">
+                    <span class="frame-emoji">🟡</span>
+                    <h4>Round Retro</h4>
+                    <p>Bold statement. Best for strong prescriptions.</p>
+                </div>
+                <div class="frame-preview-card">
+                    <span class="frame-emoji">⬛</span>
+                    <h4>Full-Rim Square</h4>
+                    <p>Professional look. Ideal for bifocals & progressives.</p>
+                </div>
+            </div>
+            <a href="/login" class="btn btn-large" style="background:#fff; color:#007BFF; font-weight:700;">
+                Sign In to Explore All Frames →
+            </a>
+        </div>
+
+        <!-- ── HOW IT WORKS ── -->
+        <div style="margin-bottom: 24px;">
+            <p class="section-label">The journey</p>
+            <h2 class="section-heading">How Lens Care works</h2>
+        </div>
+        <div class="steps-row">
+            <div class="step-item">
+                <div class="step-circle">1</div>
+                <h4>Create Account</h4>
+                <p>Tell us about yourself and your eye health goals</p>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">2</div>
+                <h4>Take Eye Tests</h4>
+                <p>Color blindness and visual acuity — done in minutes</p>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">3</div>
+                <h4>Enter Prescription</h4>
+                <p>Add your optometrist's data. We do the analysis.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">4</div>
+                <h4>Shop & Track</h4>
+                <p>Get lens recommendations and track changes over time</p>
+            </div>
+        </div>
+
+        <!-- ── CTA FOOTER ── -->
+        <section class="cta-section">
+            <h2>Ready to see clearly?</h2>
+            <p>Join Lens Care — free forever for personal use</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn btn-large" style="background:#fff; color:#007BFF; font-weight:700;">Create Free Account</a>
+                <a href="/login"    class="btn btn-outline btn-large" style="border-color:rgba(255,255,255,0.5); color:#fff;">Sign In</a>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2026 Lens Care — Optical Health Platform</p>
+            <p><small>Educational tool. Always consult a licensed optometrist for clinical decisions.</small></p>
+        </footer>
+    </div>
+
+    <script>
+        // Animate feature cards on scroll
+        const cards = document.querySelectorAll('.pub-card');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 80);
+                }
+            });
+        }, { threshold: 0.1 });
+        cards.forEach(c => observer.observe(c));
+    </script>
+</body>
+</html>

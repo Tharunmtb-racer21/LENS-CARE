@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Tests — Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════
+           RESETS & BUTTONS
+        ══════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:10px 22px; border-radius:10px; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; border:none; transition:all .18s; text-decoration:none; }
+        .btn-grad-blue  { background:linear-gradient(135deg,#007BFF,#0062CC); color:#fff!important; box-shadow:0 4px 14px rgba(0,123,255,.30); }
+        .btn-grad-blue:hover  { background:linear-gradient(135deg,#0062CC,#004EB3); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,123,255,.40); }
+        .btn-grad-green { background:linear-gradient(135deg,#00C853,#00A843); color:#fff!important; box-shadow:0 4px 14px rgba(0,200,83,.28); }
+        .btn-grad-green:hover { background:linear-gradient(135deg,#00A843,#008C38); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,200,83,.40); }
+        .btn-outline    { background:transparent; color:var(--text-secondary); border:1.5px solid var(--border); }
+        .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+
+        /* ══════════════════════════════════════
+           PAGE WRAPPER
+        ══════════════════════════════════════ */
+        .test-page { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; }
+
+        /* ══════════════════════════════════════
+           HERO BANNER
+        ══════════════════════════════════════ */
+        .test-hero {
+            background: linear-gradient(135deg, #0062CC 0%, #007BFF 50%, #0288D1 100%);
+            border-radius: 20px;
+            padding: 30px 36px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .test-hero::after {
+            content: '👁️';
+            position: absolute;
+            right: 28px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 96px;
+            opacity: .1;
+            pointer-events: none;
+        }
+        .test-hero-text h1 { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; color:#fff; margin-bottom:6px; letter-spacing:-.3px; }
+        .test-hero-text p  { font-size:13px; color:rgba(255,255,255,.82); max-width:460px; line-height:1.55; margin:0; }
+
+        /* ══════════════════════════════════════
+           STEP TABS
+        ══════════════════════════════════════ */
+        .test-tabs {
+            display: flex;
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 11px 16px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748B;
+            cursor: pointer;
+            transition: all .18s;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background: #007BFF;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(0,123,255,.28);
+        }
+
+        /* ══════════════════════════════════════
+           TEST CARD
+        ══════════════════════════════════════ */
+        .test-card {
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 18px;
+            box-shadow: 0 1px 4px rgba(0,60,160,.06), 0 4px 24px rgba(0,60,160,.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .card-head {
+            padding: 20px 28px 18px;
+            border-bottom: 1px solid #EEF5FF;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .card-head-left h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+            color: #0D1B2A;
+            margin-bottom: 5px;
+        }
+        .card-head-left p {
+            font-size: 12.5px;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0;
+            max-width: 500px;
+        }
+        .plate-badge {
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .badge-blue  { background:rgba(0,123,255,.10); color:#007BFF; border:1px solid rgba(0,123,255,.2); }
+        .badge-green { background:rgba(0,200,83,.10);  color:#00A843; border:1px solid rgba(0,200,83,.2);  }
+
+        /* ══════════════════════════════════════
+           PROGRESS BAR
+        ══════════════════════════════════════ */
+        .progress-section {
+            padding: 16px 28px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        .progress-label { font-size:12px; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:.6px; white-space:nowrap; }
+        .progress-track { flex:1; height:6px; background:#EEF5FF; border-radius:999px; overflow:hidden; }
+        .progress-fill  { height:100%; border-radius:999px; transition:width .4s ease; }
+        .fill-blue  { background:linear-gradient(90deg,#007BFF,#339DFF); }
+        .fill-green { background:linear-gradient(90deg,#00C853,#007BFF); }
+
+        /* ══════════════════════════════════════
+           CARD BODY — THE TEST AREA
+        ══════════════════════════════════════ */
+        .card-body {
+            padding: 28px 28px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            width: 100%;
+        }
+        #cb-area, #cb-result, #va-area, #va-result {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ══════════════════════════════════════
+           ISHIHARA PLATE AREA
+        ══════════════════════════════════════ */
+        .plate-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 480px;
+            padding-top: 8px;
+        }
+        .plate-hint-main {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            text-align: center;
+            margin: 0;
+        }
+        #ish-canvas {
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 8px 40px rgba(0,60,160,.12), 0 2px 10px rgba(0,0,0,.06);
+        }
+        .plate-sub {
+            font-size: 12px;
+            color: #94A3B8;
+            text-align: center;
+            margin: -8px 0 0;
+        }
+
+        /* Answer buttons */
+        .cb-opts {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .cb-btn {
+            width: 76px; height: 76px;
+            border-radius: 16px;
+            border: 2px solid #D0E4F7;
+            background: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px; font-weight: 900;
+            color: #0D1B2A;
+            cursor: pointer;
+            transition: all .15s;
+            box-shadow: 0 1px 4px rgba(0,60,160,.07);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cb-btn:hover:not(:disabled) { border-color:#007BFF; color:#007BFF; transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,123,255,.18); }
+        .cb-btn:disabled { cursor:not-allowed; }
+        .cb-btn.ok     { background:#00C853; border-color:#00C853; color:#fff; transform:scale(1.08); }
+        .cb-btn.err    { background:#F44336; border-color:#F44336; color:#fff; }
+        .cb-btn.reveal { border-color:#00C853; color:#00A843; background:rgba(0,200,83,.08); }
+
+        .cb-btn-nosee {
+            padding: 10px 28px;
+            border-radius: 10px;
+            border: 1.5px solid #D0E4F7;
+            background: #fff;
+            font-size: 13px; font-weight: 600;
+            color: #64748B;
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .cb-btn-nosee:hover:not(:disabled) { border-color:#F59E0B; color:#D97706; }
+        .cb-btn-nosee.ok  { background:#00C853; border-color:#00C853; color:#fff; }
+        .cb-btn-nosee.err { background:rgba(244,67,54,.08); border-color:#F44336; color:#F44336; }
+        .cb-btn-nosee.reveal { border-color:#00C853; color:#00A843; background:rgba(0,200,83,.08); }
+
+        .plate-feedback {
+            display: none;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: #F0F7FF;
+            border: 1px solid #D0E4F7;
+            text-align: center;
+            width: 100%; max-width: 420px;
+        }
+
+        /* ══════════════════════════════════════
+           RESULT PANELS
+        ══════════════════════════════════════ */
+        .result-panel {
+            width: 100%;
+            max-width: 560px;
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            padding-top: 8px;
+        }
+
+        /* ── Result hero: score + breakdown side by side ── */
+        .result-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: stretch;
+        }
+        .result-hero {
+            background: linear-gradient(135deg, #F0F7FF 0%, #EEF5FF 100%);
+            border: 1px solid #D0E4F7;
+            border-radius: 14px;
+            padding: 20px 22px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .result-score {
+            font-family: 'Outfit', sans-serif;
+            font-size: 46px; font-weight: 900;
+            line-height: 1;
+            color: #007BFF;
+            margin-bottom: 6px;
+        }
+        .result-label { font-size: 14px; font-weight: 700; color: #0D1B2A; margin-bottom: 3px; }
+        .result-sub   { font-size: 12px; color: #64748B; line-height: 1.4; }
+        .result-note  { font-size: 11.5px; color: #94A3B8; margin-top: 10px; padding-top: 10px; border-top: 1px solid #D0E4F7; line-height: 1.6; }
+
+        .stats-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .stat-tile {
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+        .stat-tile-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px; font-weight: 900;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .stat-tile-info { flex: 1; }
+        .stat-tile-label {
+            font-size: 10px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .8px;
+            color: #94A3B8; margin-bottom: 3px;
+        }
+        .stat-tile-sub { font-size: 11px; color: #64748B; }
+
+        .result-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; padding-top: 2px; }
+
+        /* ══════════════════════════════════════
+           SNELLEN LETTER CHART
+        ══════════════════════════════════════ */
+        .va-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 540px;
+            padding-top: 8px;
+        }
+
+        /* The white chart board */
+        .eye-chart-board {
+            width: 100%;
+            background: #fff;
+            border: 2px solid #D0E4F7;
+            border-radius: 16px;
+            padding: 22px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 2px 16px rgba(0,60,160,.07);
+            min-height: 280px;
+            position: relative;
+        }
+        .chart-row-letters {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            line-height: 1;
+            width: 100%;
+            transition: opacity .25s;
+        }
+        .chart-letter {
+            font-family: 'Courier New', monospace;
+            font-weight: 900;
+            color: #0D1B2A;
+            display: inline-block;
+            text-align: center;
+            width: 1.1em;
+        }
+        /* Active row highlight */
+        .chart-row-letters.active-row .chart-letter {
+            color: #007BFF;
+        }
+        /* Past rows fade */
+        .chart-row-letters.past-row .chart-letter {
+            color: #CBD5E1;
+        }
+        /* Row acuity label on the right */
+        .chart-row-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+            position: relative;
+        }
+        .row-acuity-label {
+            position: absolute;
+            right: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: #CBD5E1;
+            font-weight: 600;
+        }
+        .row-acuity-label.active-label { color: #007BFF; font-weight: 700; }
+
+        /* Prompt + input area */
+        .va-prompt-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
+        .va-prompt {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            text-align: center;
+            margin: 0;
+        }
+        /* Letter selector buttons */
+        .letter-opts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 480px;
+        }
+        .letter-opt {
+            width: 52px; height: 52px;
+            border-radius: 12px;
+            border: 2px solid #D0E4F7;
+            background: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 20px; font-weight: 900;
+            color: #0D1B2A;
+            cursor: pointer;
+            transition: all .14s;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 1px 4px rgba(0,60,160,.06);
+        }
+        .letter-opt:hover:not(:disabled) { border-color:#007BFF; color:#007BFF; transform:translateY(-2px); box-shadow:0 4px 14px rgba(0,123,255,.16); }
+        .letter-opt:disabled { cursor:not-allowed; opacity:.55; }
+        .letter-opt.lok  { background:#00C853; border-color:#00C853; color:#fff; }
+        .letter-opt.lerr { background:#F44336; border-color:#F44336; color:#fff; }
+
+        /* Input sequence indicator */
+        .letter-sequence {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            min-height: 28px;
+        }
+        .seq-slot {
+            width: 28px; height: 28px;
+            border-bottom: 2px solid #D0E4F7;
+            display: flex; align-items: flex-end; justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-size: 16px; font-weight: 900;
+            color: #007BFF;
+            transition: all .15s;
+        }
+        .seq-slot.active-slot { border-bottom-color: #007BFF; }
+        .seq-slot.correct-slot { color: #00A843; border-bottom-color: #00C853; }
+        .seq-slot.wrong-slot   { color: #F44336; border-bottom-color: #F44336; }
+
+        /* ══════════════════════════════════════
+           SUMMARY CARD
+        ══════════════════════════════════════ */
+        .summary-card { display: none; }
+        .summary-card.visible { display: block; }
+        .info-box {
+            background: #EFF8FF;
+            border: 1px solid rgba(0,123,255,.18);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #1E4A7C;
+            line-height: 1.6;
+        }
+        .btn-cta {
+            width: 100%;
+            padding: 15px;
+            font-size: 15px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        /* ══════════════════════════════════════
+           SECTION TOGGLE
+        ══════════════════════════════════════ */
+        .test-section { display: none; }
+        .test-section.active { display: block; }
+        .hidden { display: none !important; }
+
+        /* type colours */
+        .type-success { color: #00A843; }
+        .type-warn    { color: #D97706; }
+
+        /* chart canvas */
+    </style>
+</head>
+<body>
+
+<nav class="dashboard-nav">
+    <div class="nav-inner">
+        <div class="nav-brand">
+            <div class="logo-icon">
+                <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+            </div>
+            <span class="brand-name">LENS CARE</span>
+        </div>
+        <div class="nav-links">
+            <a href="/dashboard"    class="nav-link">Dashboard</a>
+            <a href="/eye_test"     class="nav-link active">Eye Test</a>
+            <a href="/lens_frames"  class="nav-link">Frames</a>
+            <a href="/eye_insights" class="nav-link">Insights</a>
+        </div>
+        <div class="nav-actions">
+            <span class="nav-user">{{ user.full_name or user.username }}</span>
+            <a href="/prescription" class="btn btn-grad-green btn-sm">+ New Rx</a>
+            <a href="/logout"       class="btn btn-outline    btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+<div class="test-page">
+
+    <!-- Hero -->
+    <div class="test-hero">
+        <div class="test-hero-text">
+            <h1>Online Eye Tests</h1>
+            <p>Ishihara color blindness screening &amp; Snellen visual acuity — complete both for a full eye health assessment.</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="test-tabs">
+        <button class="tab-btn active" id="tab-cb" onclick="switchTab('cb')">🎨 Ishihara Color Blindness</button>
+        <button class="tab-btn"        id="tab-va" onclick="switchTab('va')">📏 Snellen Visual Acuity</button>
+    </div>
+
+    <!-- ══════════ COLOR BLINDNESS ══════════ -->
+    <div id="sec-cb" class="test-section active">
+        <div class="test-card">
+            <div class="card-head">
+                <div class="card-head-left">
+                    <h3>🎨 Ishihara Color Blindness Screening</h3>
+                    <p>Each plate contains a number embedded in colored dots. Normal vision reads it via red-green contrast. Sit in good light, ~40 cm from screen, and answer honestly.</p>
+                </div>
+                <span class="plate-badge badge-blue">Plate <span id="cb-cur">1</span> / 12</span>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-section">
+                <span class="progress-label">Progress</span>
+                <div class="progress-track"><div class="progress-fill fill-blue" id="cb-prog" style="width:0%"></div></div>
+                <span class="plate-badge badge-blue" id="cb-score-badge">0 / 12</span>
+            </div>
+
+            <div class="card-body">
+                <!-- Active plate -->
+                <div id="cb-area">
+                    <div class="plate-area">
+                        <p class="plate-hint-main">What number do you see in the dot pattern?</p>
+                        <canvas id="ish-canvas" width="340" height="340"></canvas>
+                        <p class="plate-sub" id="cb-plate-sub">Plate 1 of 12 — visible to all (demo)</p>
+                        <div class="cb-opts" id="cb-opts"></div>
+                        <button id="cb-nosee" class="cb-btn-nosee">I can't see a number</button>
+                        <div class="plate-feedback" id="cb-plate-info"></div>
+                    </div>
+                </div>
+
+                <!-- Result panel -->
+                <div id="cb-result" class="result-panel">
+                    <div class="result-top">
+                        <div class="result-hero">
+                            <div class="result-score" id="cb-score">0/12</div>
+                            <div class="result-label" id="cb-type">—</div>
+                            <div class="result-sub"   id="cb-pct">—</div>
+                            <div class="result-note"  id="cb-advice"></div>
+                        </div>
+                        <div class="stats-row">
+                            <div class="stat-tile" style="border-left:4px solid #FF5722;">
+                                <div class="stat-tile-val" style="color:#FF5722;" id="cb-err-protan">0</div>
+                                <div class="stat-tile-info">
+                                    <div class="stat-tile-label">Protan (red)</div>
+                                    <div class="stat-tile-sub">plates missed</div>
+                                </div>
+                            </div>
+                            <div class="stat-tile" style="border-left:4px solid #9C27B0;">
+                                <div class="stat-tile-val" style="color:#9C27B0;" id="cb-err-deutan">0</div>
+                                <div class="stat-tile-info">
+                                    <div class="stat-tile-label">Deutan (green)</div>
+                                    <div class="stat-tile-sub">plates missed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn btn-outline" onclick="restartCB()">↺ Redo Color Test</button>
+                        <button class="btn btn-grad-green" onclick="switchTab('va')">Next: Visual Acuity →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ VISUAL ACUITY ══════════ -->
+    <div id="sec-va" class="test-section">
+        <div class="test-card">
+            <div class="card-head">
+                <div class="card-head-left">
+                    <h3>👁️ Snellen Letter Acuity Test</h3>
+                    <p>Sit ~50 cm from screen. Read each highlighted row of letters from left to right by tapping them below. Rows shrink from 20/200 down to 20/20.</p>
+                </div>
+                <span class="plate-badge badge-green">Row <span id="va-cur">1</span> / <span id="va-tot">10</span></span>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-section">
+                <span class="progress-label">Acuity</span>
+                <div class="progress-track"><div class="progress-fill fill-green" id="va-prog" style="width:10%"></div></div>
+                <span class="plate-badge badge-green" id="va-badge">20/200</span>
+            </div>
+
+            <div class="card-body">
+                <!-- Active chart -->
+                <div id="va-area" class="va-area">
+                    <!-- The eye chart board — all rows visible, active row highlighted -->
+                    <div class="eye-chart-board" id="eye-chart-board"></div>
+
+                    <!-- Letter input area -->
+                    <div class="va-prompt-area">
+                        <p class="va-prompt">Tap each letter in the <span style="color:#007BFF;font-weight:700;">blue row</span> from left to right</p>
+                        <div class="letter-sequence" id="letter-sequence"></div>
+                        <div class="letter-opts" id="letter-opts"></div>
+                    </div>
+                </div>
+
+                <!-- VA result -->
+                <div id="va-result" class="result-panel">
+
+                    <!-- Top row: acuity score + description -->
+                    <div class="result-top" style="grid-template-columns:auto 1fr; align-items:stretch;">
+                        <div class="result-hero" style="padding:20px 24px; text-align:center; justify-content:center; min-width:130px;">
+                            <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#94A3B8;margin-bottom:6px;">Acuity</div>
+                            <div style="font-family:'Outfit',sans-serif;font-size:40px;font-weight:900;color:#00A843;line-height:1;" id="va-score-label">20/20</div>
+                        </div>
+                        <div style="background:#F8FBFF;border:1px solid #D0E4F7;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:4px;">
+                            <div class="result-label" id="va-score-note">Normal vision</div>
+                            <div class="result-sub" id="va-score-sub"></div>
+                        </div>
+                    </div>
+
+                    <!-- Estimated power card -->
+                    <div id="va-power-card" style="background:linear-gradient(135deg,#EFF8FF,#E8F4FF);border:1.5px solid rgba(0,123,255,.22);border-radius:14px;padding:18px 22px;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                            <div style="width:32px;height:32px;background:rgba(0,123,255,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🔭</div>
+                            <div>
+                                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#94A3B8;">Estimated Eye Power</div>
+                                <div style="font-size:12px;color:#475569;margin-top:1px;">Based on your Snellen result</div>
+                            </div>
+                        </div>
+
+                        <!-- Power range + lens type -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                            <div style="background:#fff;border:1px solid #D0E4F7;border-radius:10px;padding:12px 14px;text-align:center;">
+                                <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#94A3B8;margin-bottom:4px;">Power Range</div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#007BFF;" id="va-power-range">0.00 D</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid #D0E4F7;border-radius:10px;padding:12px 14px;text-align:center;">
+                                <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#94A3B8;margin-bottom:4px;">Lens Type</div>
+                                <div style="font-size:14px;font-weight:700;color:#0D1B2A;" id="va-lens-type">—</div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div id="va-recommendation" style="font-size:12.5px;color:#1E4A7C;line-height:1.6;padding:10px 14px;background:rgba(0,123,255,.06);border-radius:8px;"></div>
+                    </div>
+
+                    <!-- Disclaimer -->
+                    <div style="background:#FFFBEB;border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:16px;flex-shrink:0;">⚠️</span>
+                        <p style="font-size:11.5px;color:#92400E;line-height:1.6;margin:0;">This is a <strong>rough screening estimate only</strong> and cannot replace a clinical refraction by an optometrist. Actual power depends on corneal curvature, axial length, astigmatism, and accommodation — none of which this test measures.</p>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="btn btn-outline" onclick="restartVA()">↺ Redo Acuity Test</button>
+                        <button class="btn btn-grad-blue" onclick="switchTab('cb')">← Color Blindness</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ SUMMARY ══════════ -->
+    <div id="sec-sum" class="test-card summary-card">
+        <div class="card-head">
+            <div class="card-head-left">
+                <h3>📋 Results Summary</h3>
+                <p>Both tests complete. These are indicative screening results — not a clinical diagnosis.</p>
+            </div>
+        </div>
+        <div class="card-body" style="align-items:stretch;">
+            <div class="stats-row" style="margin-bottom:16px;">
+                <div class="stat-tile" style="border-top:3px solid #007BFF;">
+                    <div class="stat-tile-label">Color Blindness Score</div>
+                    <div class="stat-tile-val" id="sum-cb">—</div>
+                    <div class="stat-tile-sub" id="sum-cbtype">—</div>
+                </div>
+                <div class="stat-tile" style="border-top:3px solid #00C853;">
+                    <div class="stat-tile-label">Visual Acuity</div>
+                    <div class="stat-tile-val" id="sum-va">—</div>
+                    <div class="stat-tile-sub" id="sum-vatext">—</div>
+                </div>
+            </div>
+            <div class="info-box">⚕️ This is a preliminary online screening only. Results may be affected by screen calibration, ambient lighting, and viewing distance. Please consult a qualified ophthalmologist or optometrist for a clinical evaluation and any prescription.</div>
+            <button class="btn btn-grad-green btn-cta" onclick="saveAndGo()">Save &amp; Continue to Prescription →</button>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════ */
+const results = { cb: null, cbType: null, va: null };
+
+function switchTab(t) {
+    ['cb','va'].forEach(x => {
+        document.getElementById('sec-' + x).classList.toggle('active', x === t);
+        document.getElementById('tab-' + x).classList.toggle('active', x === t);
+    });
+    if (t === 'va' && vaRowIdx === 0) initVA();
+}
+
+/* ════════════════════════════════════════════════
+   ISHIHARA
+════════════════════════════════════════════════ */
+const PLATES = [
+    { n:'12', answer:'12', cbSee:'12', type:'demo',   fgH:18, fgS:80, fgL:52, bgH:82, bgS:46, bgL:53 },
+    { n:'8',  answer:'8',  cbSee:'3',  type:'protan', fgH:14, fgS:82, fgL:51, bgH:88, bgS:44, bgL:53 },
+    { n:'6',  answer:'6',  cbSee:'5',  type:'deutan', fgH:22, fgS:78, fgL:53, bgH:78, bgS:48, bgL:52 },
+    { n:'29', answer:'29', cbSee:'70', type:'protan', fgH:16, fgS:84, fgL:50, bgH:92, bgS:42, bgL:54 },
+    { n:'57', answer:'57', cbSee:'35', type:'deutan', fgH:20, fgS:76, fgL:54, bgH:84, bgS:50, bgL:52 },
+    { n:'5',  answer:'5',  cbSee:'2',  type:'protan', fgH:12, fgS:86, fgL:50, bgH:96, bgS:40, bgL:55 },
+    { n:'3',  answer:'3',  cbSee:'5',  type:'deutan', fgH:24, fgS:74, fgL:53, bgH:80, bgS:52, bgL:51 },
+    { n:'15', answer:'15', cbSee:'17', type:'protan', fgH:10, fgS:88, fgL:51, bgH:94, bgS:38, bgL:56 },
+    { n:'74', answer:'74', cbSee:'21', type:'deutan', fgH:26, fgS:72, fgL:55, bgH:76, bgS:54, bgL:52 },
+    { n:'2',  answer:'2',  cbSee:'—',  type:'protan', fgH:8,  fgS:90, fgL:49, bgH:100,bgS:36, bgL:57 },
+    { n:'45', answer:'45', cbSee:'—',  type:'deutan', fgH:28, fgS:70, fgL:56, bgH:72, bgS:56, bgL:50 },
+    { n:'16', answer:'16', cbSee:'6',  type:'mixed',  fgH:18, fgS:82, fgL:52, bgH:86, bgS:44, bgL:53 },
+];
+const N_PLATES = PLATES.length;
+let cbIdx=0, cbScore=0, cbErr={protan:0,deutan:0,mixed:0};
+
+function hsl(h,s,l){
+    const H=((h%360)+360)%360,S=s/100,L=l/100;
+    const c=(1-Math.abs(2*L-1))*S,x=c*(1-Math.abs((H/60)%2-1)),m=L-c/2;
+    let r=0,g=0,b=0;
+    if(H<60){r=c;g=x;}else if(H<120){r=x;g=c;}else if(H<180){g=c;b=x;}
+    else if(H<240){g=x;b=c;}else if(H<300){r=x;b=c;}else{r=c;b=x;}
+    return `rgb(${~~((r+m)*255)},${~~((g+m)*255)},${~~((b+m)*255)})`;
+}
+function jCol(bH,bS,bL){return hsl(bH+(Math.random()-.5)*14,Math.min(98,Math.max(20,bS+(Math.random()-.5)*10)),Math.min(70,Math.max(38,bL+(Math.random()-.5)*8)));}
+
+function buildMask(numStr,W,H){
+    const S=3,oc=document.createElement('canvas');
+    oc.width=W*S;oc.height=H*S;
+    const ox=oc.getContext('2d');
+    ox.fillStyle='#000';ox.fillRect(0,0,oc.width,oc.height);
+    const fSize=numStr.length===1?Math.round(H*S*.58):numStr.length===2?Math.round(H*S*.44):Math.round(H*S*.32);
+    ox.font=`900 ${fSize}px "Arial Black",Impact,sans-serif`;
+    ox.textAlign='center';ox.textBaseline='middle';
+    ox.strokeStyle='#fff';ox.lineWidth=fSize*0.07;ox.lineJoin='round';
+    ox.strokeText(numStr,oc.width/2,oc.height/2);
+    ox.fillStyle='#fff';ox.fillText(numStr,oc.width/2,oc.height/2);ox.fillText(numStr,oc.width/2,oc.height/2);
+    const raw=ox.getImageData(0,0,oc.width,oc.height).data;
+    const DILR=4,dilated=new Uint8Array(oc.width*oc.height);
+    for(let y=0;y<oc.height;y++)for(let x=0;x<oc.width;x++){
+        if(raw[(y*oc.width+x)*4]>60)for(let dy=-DILR;dy<=DILR;dy++)for(let dx=-DILR;dx<=DILR;dx++){
+            const nx=x+dx,ny=y+dy;
+            if(nx>=0&&nx<oc.width&&ny>=0&&ny<oc.height)dilated[ny*oc.width+nx]=255;
+        }
+    }
+    const mask=new Uint8Array(W*H);
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        let sum=0;
+        for(let dy=0;dy<S;dy++)for(let dx=0;dx<S;dx++)sum+=dilated[(y*S+dy)*oc.width+(x*S+dx)];
+        mask[y*W+x]=sum/(S*S);
+    }
+    return mask;
+}
+
+function packCircles(CX,CY,R,minR,maxR,attempts){
+    const dots=[],cell=minR*1.3,cols=Math.ceil(R*2/cell),rows=Math.ceil(R*2/cell);
+    const gOX=CX-R,gOY=CY-R,grid=new Array(cols*rows).fill(null);
+    const gIdx=(x,y)=>Math.floor((y-gOY)/cell)*cols+Math.floor((x-gOX)/cell);
+    function overlaps(x,y,r){
+        const cx1=Math.max(0,Math.floor((x-gOX-r*2.2)/cell)),cx2=Math.min(cols-1,Math.ceil((x-gOX+r*2.2)/cell));
+        const ry1=Math.max(0,Math.floor((y-gOY-r*2.2)/cell)),ry2=Math.min(rows-1,Math.ceil((y-gOY+r*2.2)/cell));
+        for(let row=ry1;row<=ry2;row++)for(let col=cx1;col<=cx2;col++){
+            const d=grid[row*cols+col];if(d){const dx=d.x-x,dy=d.y-y;if(dx*dx+dy*dy<(d.r+r+0.8)**2)return true;}
+        }
+        return false;
+    }
+    for(let a=0;a<attempts;a++){
+        const angle=Math.random()*Math.PI*2,dist=Math.sqrt(Math.random())*(R-maxR-1);
+        const x=CX+Math.cos(angle)*dist,y=CY+Math.sin(angle)*dist;
+        const r=minR+Math.random()*(maxR-minR);
+        const ddx=x-CX,ddy=y-CY;
+        if(ddx*ddx+ddy*ddy>(R-r-0.5)**2)continue;
+        if(overlaps(x,y,r))continue;
+        const dot={x,y,r};dots.push(dot);
+        const gi=gIdx(x,y);if(gi>=0&&gi<grid.length)grid[gi]=dot;
+    }
+    return dots;
+}
+
+function drawPlate(plate){
+    const cv=document.getElementById('ish-canvas');
+    const W=cv.width,H=cv.height,CX=W/2,CY=H/2,R=W/2-6;
+    const ctx=cv.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    ctx.save();ctx.beginPath();ctx.arc(CX,CY,R,0,Math.PI*2);ctx.clip();
+    ctx.fillStyle=jCol(plate.bgH,plate.bgS,plate.bgL);ctx.fillRect(0,0,W,H);
+    const mask=buildMask(plate.n,W,H);
+    const dots=packCircles(CX,CY,R,4.0,6.8,22000);
+    dots.forEach(d=>{
+        const mx=Math.round(d.x),my=Math.round(d.y);
+        const inNum=mx>=0&&mx<W&&my>=0&&my<H&&mask[my*W+mx]>90;
+        ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+        ctx.fillStyle=inNum?jCol(plate.fgH,plate.fgS,plate.fgL):jCol(plate.bgH,plate.bgS,plate.bgL);
+        ctx.fill();
+    });
+    ctx.restore();
+    ctx.beginPath();ctx.arc(CX,CY,R,0,Math.PI*2);
+    ctx.strokeStyle='rgba(0,60,140,.10)';ctx.lineWidth=3;ctx.stroke();
+}
+
+function loadPlate(){
+    if(cbIdx>=N_PLATES){showCBResult();return;}
+    document.getElementById('cb-cur').textContent=cbIdx+1;
+    document.getElementById('cb-prog').style.width=(cbIdx/N_PLATES*100)+'%';
+    document.getElementById('cb-score-badge').textContent=cbScore+' / '+N_PLATES;
+    const p=PLATES[cbIdx];
+    drawPlate(p);
+    document.getElementById('cb-plate-sub').textContent='Plate '+(cbIdx+1)+' of '+N_PLATES+(cbIdx===0?' — visible to all (demo)':'');
+    const pool=['2','3','5','6','7','8','9','12','15','16','17','21','29','35','45','57','70','74'];
+    const opts=[p.answer];
+    if(p.cbSee!=='—'&&p.cbSee!==p.answer)opts.push(p.cbSee);
+    for(const n of pool.sort(()=>Math.random()-.5)){if(opts.length>=4)break;if(!opts.includes(n))opts.push(n);}
+    opts.sort(()=>Math.random()-.5);
+    const nosee=document.getElementById('cb-nosee');
+    nosee.disabled=false;nosee.className='cb-btn-nosee';
+    nosee.onclick=()=>answerCB('—',nosee,true);
+    const wrap=document.getElementById('cb-opts');wrap.innerHTML='';
+    opts.slice(0,4).forEach(opt=>{
+        const b=document.createElement('button');b.className='cb-btn';b.textContent=opt;
+        b.onclick=()=>answerCB(opt,b,false);wrap.appendChild(b);
+    });
+    document.getElementById('cb-plate-info').style.display='none';
+}
+
+function answerCB(chosen,btn,isCantSee){
+    const p=PLATES[cbIdx];
+    document.querySelectorAll('.cb-btn,.cb-btn-nosee').forEach(b=>b.disabled=true);
+    const correct=chosen===p.answer;
+    if(correct){cbScore++;btn.classList.add('ok');}
+    else{
+        btn.classList.add('err');
+        if(p.type==='protan')cbErr.protan++;
+        else if(p.type==='deutan')cbErr.deutan++;
+        else if(p.type==='mixed')cbErr.mixed++;
+        document.querySelectorAll('.cb-btn').forEach(b=>{if(b.textContent===p.answer)b.classList.add('reveal');});
+        if(isCantSee&&p.answer!=='—')document.getElementById('cb-nosee').classList.add('reveal');
+    }
+    const info=document.getElementById('cb-plate-info');
+    info.innerHTML=correct
+        ?`<span style="color:#00A843">✓ Correct — the number is <strong>${p.answer}</strong></span>`
+        :`<span style="color:#F44336">✗ The number is <strong>${p.answer}</strong>${p.cbSee!=='—'?` · color-deficient vision may see <strong>${p.cbSee}</strong>`:''}</span>`;
+    info.style.display='block';
+    setTimeout(()=>{cbIdx++;info.style.display='none';loadPlate();},1600);
+}
+
+function showCBResult(){
+    document.getElementById('cb-area').style.display='none';
+    const res=document.getElementById('cb-result');
+    res.style.display='flex';
+    const pct=Math.round(cbScore/N_PLATES*100);
+    results.cb=pct;
+    let type='Normal color vision',typeClass='success',advice='';
+    if(cbErr.protan>=3&&cbErr.protan>=cbErr.deutan){
+        type='Possible Protanomaly (red weakness)';typeClass='warn';
+        advice='You may have difficulty distinguishing red from green. Consult an eye specialist for a clinical Ishihara test.';
+        results.cbType='Protan';
+    }else if(cbErr.deutan>=3){
+        type='Possible Deuteranomaly (green weakness)';typeClass='warn';
+        advice='You may have difficulty distinguishing green from red. A clinical test is recommended.';
+        results.cbType='Deutan';
+    }else if(pct<60){
+        type='Possible color vision deficiency';typeClass='warn';
+        advice='Your result suggests some difficulty with color discrimination. See an optometrist.';
+    }else{
+        advice='Your responses suggest normal color vision. This is a screening tool only — not a medical diagnosis.';
+        results.cbType='Normal';
+    }
+    document.getElementById('cb-score').textContent=cbScore+'/'+N_PLATES;
+    document.getElementById('cb-pct').textContent=pct+'% correct';
+    document.getElementById('cb-type').textContent=type;
+    document.getElementById('cb-type').className='result-label type-'+typeClass;
+    document.getElementById('cb-advice').textContent=advice;
+    document.getElementById('cb-err-protan').textContent=cbErr.protan;
+    document.getElementById('cb-err-deutan').textContent=cbErr.deutan;
+    checkBothDone();
+}
+
+function restartCB(){
+    cbIdx=0;cbScore=0;cbErr={protan:0,deutan:0,mixed:0};results.cb=null;results.cbType=null;
+    document.getElementById('cb-area').style.display='block';
+    document.getElementById('cb-result').style.display='none';
+    loadPlate();
+}
+
+/* ════════════════════════════════════════════════
+   SNELLEN LETTER ACUITY TEST
+   ─ Real progressive eye chart with letter rows ─
+════════════════════════════════════════════════ */
+
+// Standard Snellen rows — from 20/200 down to 20/20
+// Each row: { label, fontSize (px), letters[] }
+const VA_ROWS = [
+    { label:'20/200', fs:42, letters:['E'] },
+    { label:'20/100', fs:34, letters:['F','P'] },
+    { label:'20/70',  fs:27, letters:['T','O','Z'] },
+    { label:'20/50',  fs:22, letters:['L','P','E','D'] },
+    { label:'20/40',  fs:18, letters:['P','E','C','F','D'] },
+    { label:'20/30',  fs:14, letters:['E','D','F','C','Z','P'] },
+    { label:'20/25',  fs:12, letters:['F','E','L','O','P','Z','D'] },
+    { label:'20/20',  fs:10, letters:['D','E','F','P','O','T','E','C'] },
+    { label:'20/15',  fs: 8, letters:['L','E','F','O','D','P','C','T','Z'] },
+    { label:'20/10',  fs: 7, letters:['F','D','P','L','T','C','E','O','Z','D'] },
+];
+
+const VA_NOTES = {
+    '20/200': 'Legally blind threshold — large print required',
+    '20/100': 'Severely reduced — significant visual impairment',
+    '20/70':  'Significantly impaired — specialist consultation needed',
+    '20/50':  'Below average — reading glasses likely needed',
+    '20/40':  'Borderline — driving may require optical correction',
+    '20/30':  'Near normal — mild correction may help',
+    '20/25':  'Good vision — within normal range',
+    '20/20':  'Normal (clinical standard) — clear, healthy vision',
+    '20/15':  'Above average — excellent acuity',
+    '20/10':  'Exceptional — significantly better than standard',
+};
+
+// Estimated refractive power mapped from Snellen acuity
+// Source: clinical approximation (logMAR / diopter correlation)
+// Each entry: { range: display string, mid: midpoint diopter for context, lens, rec }
+const VA_POWER = {
+    '20/200': { range: '−3.00 D or more', lens: 'Concave (−)',   color:'#F44336', rec: 'Significant myopia. You likely need strong prescription glasses or contact lenses. Book a full refraction exam immediately.' },
+    '20/100': { range: '−2.00 to −3.00 D', lens: 'Concave (−)', color:'#F44336', rec: 'Moderate-to-high myopia. Prescription glasses or contacts are strongly recommended. Consult an optometrist.' },
+    '20/70':  { range: '−1.50 to −2.00 D', lens: 'Concave (−)', color:'#FF8F00', rec: 'Moderate myopia. Glasses or contacts will significantly improve clarity. An eye exam is advised.' },
+    '20/50':  { range: '−1.00 to −1.50 D', lens: 'Concave (−)', color:'#FF8F00', rec: 'Mild-to-moderate myopia. Glasses or contacts are recommended, especially for driving and distance tasks.' },
+    '20/40':  { range: '−0.75 to −1.00 D', lens: 'Concave (−)', color:'#FFB020', rec: 'Mild myopia. Borderline — you may benefit from mild corrective lenses. An optometrist can confirm.' },
+    '20/30':  { range: '−0.50 to −0.75 D', lens: 'Mild concave', color:'#FFB020', rec: 'Very mild myopia. Correction is optional for most tasks but may help with night driving or fine detail.' },
+    '20/25':  { range: '−0.25 to −0.50 D', lens: 'Minimal / none', color:'#00A843', rec: 'Near-normal vision. No correction likely needed. A routine annual check is sufficient.' },
+    '20/20':  { range: 'None (0.00 D)',     lens: 'None needed',  color:'#00A843', rec: 'Normal vision — no refractive correction required. Maintain annual eye check-ups.' },
+    '20/15':  { range: 'None (0.00 D)',     lens: 'None needed',  color:'#00A843', rec: 'Above-average acuity. No correction needed.' },
+    '20/10':  { range: 'None (0.00 D)',     lens: 'None needed',  color:'#00A843', rec: 'Exceptional acuity — significantly sharper than average.' },
+};
+
+let vaRowIdx   = 0;   // current row being tested
+let vaLetterIdx = 0;  // which letter in row user is answering
+let vaErrors   = 0;   // errors on current row
+let vaLastPassed = -1; // last row index user passed
+
+document.getElementById('va-tot').textContent = VA_ROWS.length;
+
+/* Build the full chart board — all rows visible, active row in blue */
+function buildChartBoard() {
+    const board = document.getElementById('eye-chart-board');
+    board.innerHTML = '';
+    VA_ROWS.forEach((row, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'chart-row-wrap';
+        wrap.id = 'chart-row-wrap-' + i;
+
+        const rowEl = document.createElement('div');
+        rowEl.className = 'chart-row-letters';
+        if (i < vaRowIdx)  rowEl.classList.add('past-row');
+        if (i === vaRowIdx) rowEl.classList.add('active-row');
+
+        row.letters.forEach(l => {
+            const span = document.createElement('span');
+            span.className = 'chart-letter';
+            span.textContent = l;
+            span.style.fontSize = row.fs + 'px';
+            rowEl.appendChild(span);
+        });
+
+        const label = document.createElement('div');
+        label.className = 'row-acuity-label' + (i === vaRowIdx ? ' active-label' : '');
+        label.textContent = row.label;
+
+        wrap.appendChild(rowEl);
+        wrap.appendChild(label);
+        board.appendChild(wrap);
+    });
+
+    // Scroll active row into view in the board
+    const activeWrap = document.getElementById('chart-row-wrap-' + vaRowIdx);
+    if (activeWrap) setTimeout(() => activeWrap.scrollIntoView({block:'nearest',behavior:'smooth'}), 50);
+}
+
+/* Build the letter-input sequence slots + answer buttons for current row */
+function buildLetterInput() {
+    const row = VA_ROWS[vaRowIdx];
+
+    // Sequence slots (one per letter in row)
+    const seqEl = document.getElementById('letter-sequence');
+    seqEl.innerHTML = '';
+    row.letters.forEach((_, i) => {
+        const slot = document.createElement('div');
+        slot.className = 'seq-slot' + (i === 0 ? ' active-slot' : '');
+        slot.id = 'seq-slot-' + i;
+        seqEl.appendChild(slot);
+    });
+
+    // Answer option buttons — all unique Snellen letters shuffled
+    const ALL_LETTERS = ['C','D','E','F','L','N','O','P','T','Z'];
+    const optsEl = document.getElementById('letter-opts');
+    optsEl.innerHTML = '';
+    ALL_LETTERS.forEach(l => {
+        const btn = document.createElement('button');
+        btn.className = 'letter-opt';
+        btn.textContent = l;
+        btn.dataset.letter = l;
+        btn.onclick = () => pickLetter(l, btn);
+        optsEl.appendChild(btn);
+    });
+
+    vaLetterIdx = 0;
+    vaErrors = 0;
+    updateProgressBadge();
+}
+
+function updateProgressBadge() {
+    const row = VA_ROWS[vaRowIdx];
+    document.getElementById('va-cur').textContent  = vaRowIdx + 1;
+    document.getElementById('va-badge').textContent = row.label;
+    document.getElementById('va-prog').style.width  = ((vaRowIdx / VA_ROWS.length) * 100) + '%';
+}
+
+/* User taps a letter */
+function pickLetter(letter, btn) {
+    const row    = VA_ROWS[vaRowIdx];
+    const target = row.letters[vaLetterIdx];
+    const slot   = document.getElementById('seq-slot-' + vaLetterIdx);
+
+    // Disable all buttons briefly
+    document.querySelectorAll('.letter-opt').forEach(b => b.disabled = true);
+
+    slot.textContent = letter;
+
+    if (letter === target) {
+        slot.classList.add('correct-slot');
+        btn.classList.add('lok');
+        vaLetterIdx++;
+        setTimeout(() => {
+            btn.classList.remove('lok');
+            document.querySelectorAll('.letter-opt').forEach(b => b.disabled = false);
+            if (vaLetterIdx >= row.letters.length) {
+                // Completed full row — passed, move to next
+                vaLastPassed = vaRowIdx;
+                vaRowIdx++;
+                if (vaRowIdx >= VA_ROWS.length) { showVAResult(); return; }
+                buildChartBoard();
+                buildLetterInput();
+            } else {
+                // Advance to next letter in same row
+                document.querySelectorAll('.seq-slot').forEach((s,i) => {
+                    s.classList.toggle('active-slot', i === vaLetterIdx);
+                });
+            }
+        }, 400);
+    } else {
+        // Wrong letter — mark it and immediately show result
+        slot.textContent = '✗';
+        slot.classList.add('wrong-slot');
+        btn.classList.add('lerr');
+        setTimeout(() => { showVAResult(); }, 700);
+    }
+}
+
+function showVAResult() {
+    document.getElementById('va-area').style.display  = 'none';
+    document.getElementById('va-result').style.display = 'flex';
+
+    const passed = vaLastPassed >= 0 ? VA_ROWS[vaLastPassed] : VA_ROWS[0];
+    results.va = passed.label;
+
+    // Basic info
+    document.getElementById('va-score-label').textContent = passed.label;
+    document.getElementById('va-score-note').textContent  = VA_NOTES[passed.label] || '';
+    document.getElementById('va-score-sub').textContent   = 'Smallest row read correctly: ' + passed.label;
+
+    // Power estimate
+    const pw = VA_POWER[passed.label];
+    if (pw) {
+        document.getElementById('va-power-range').textContent = pw.range;
+        document.getElementById('va-power-range').style.color = pw.color;
+        document.getElementById('va-lens-type').textContent   = pw.lens;
+        document.getElementById('va-recommendation').textContent = pw.rec;
+    }
+
+    checkBothDone();
+}
+
+function initVA() {
+    vaRowIdx    = 0;
+    vaLetterIdx = 0;
+    vaLastPassed = -1;
+    buildChartBoard();
+    buildLetterInput();
+}
+
+function restartVA() {
+    results.va = null;
+    document.getElementById('va-area').style.display   = 'flex';
+    document.getElementById('va-result').style.display  = 'none';
+    initVA();
+}
+
+/* ════════════════════════════════════════════════
+   SUMMARY
+════════════════════════════════════════════════ */
+function checkBothDone(){
+    if(results.cb===null||results.va===null)return;
+    const s=document.getElementById('sec-sum');
+    s.classList.add('visible');
+    document.getElementById('sum-cb').textContent=results.cb+'%';
+    document.getElementById('sum-cbtype').textContent=results.cbType||'Normal';
+    document.getElementById('sum-va').textContent=results.va;
+    document.getElementById('sum-vatext').textContent='Visual acuity level';
+    s.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function saveAndGo(){
+    try{
+        const payload={
+            colorblind_score:results.cb,colorblind_result:results.cbType||'Normal',
+            colorblind_type:results.cbType||'Normal',acuity_score:results.va,acuity_result:results.va||''
+        };
+        sessionStorage.setItem('eyeTestResults',JSON.stringify({colorblind:results.cb,colorblindType:results.cbType,acuity:results.va}));
+        await fetch('/save_eye_test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    }catch(e){console.error('Save error:',e);}
+    window.location.href='/prescription';
+}
+
+
+
+/* INIT */
+loadPlate();
+</script>
+</body>
+</html>

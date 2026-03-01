@@ -1,0 +1,521 @@
+{% extends "base.html" %}
+
+{% block title %}Color Blindness Test - Lens Care{% endblock %}
+
+{% block extra_css %}
+<style>
+    .test-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .test-plate {
+        width: 400px;
+        height: 400px;
+        margin: 30px auto;
+        border-radius: 50%;
+        display: block;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        background: #f5f5f5;
+    }
+    
+    .answer-input {
+        text-align: center;
+        font-size: 24px;
+        width: 150px;
+        padding: 15px;
+        margin: 20px auto;
+        display: block;
+        border: 2px solid #007BFF;
+        border-radius: 8px;
+    }
+    
+    .test-progress {
+        text-align: center;
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    
+    .btn {
+        padding: 12px 30px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #007BFF, #0062CC);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-large {
+        padding: 15px 40px;
+        font-size: 18px;
+    }
+    
+    .info-card {
+        background: #E3F2FD;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+    
+    .info-card ul {
+        margin: 10px 0;
+        padding-left: 25px;
+    }
+    
+    .info-card li {
+        margin: 10px 0;
+        line-height: 1.6;
+    }
+    
+    .results-card {
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    
+    .score-display {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+        color: #007BFF;
+    }
+    
+    .result-normal { color: #00C853; }
+    .result-mild { color: #FFA726; }
+    .result-moderate { color: #FF7043; }
+    .result-severe { color: #E53935; }
+    
+    .answer-row {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .answer-row.correct { background: #E8F5E9; }
+    .answer-row.incorrect { background: #FFEBEE; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🎨 Realistic Ishihara Color Blindness Test</h1>
+        <p>Medical-Grade Color Vision Screening</p>
+    </div>
+</div>
+
+<div class="container">
+    <div id="testInstructions" class="test-container">
+        <h2>📋 Test Instructions</h2>
+        <div class="info-card">
+            <ul>
+                <li><strong>10 Realistic Plates:</strong> Each plate uses authentic Ishihara-style patterns</li>
+                <li><strong>Variable Dot Sizes:</strong> Different sized dots (3-18px) for medical accuracy</li>
+                <li><strong>Multiple Colors:</strong> 8 unique colors per plate (not just 2!)</li>
+                <li><strong>Type Your Answer:</strong> Enter the number you see in each circle</li>
+                <li><strong>Can't See It?</strong> Type "0" or skip if you cannot identify the number</li>
+                <li><strong>Take Your Time:</strong> No rush, but don't overthink it</li>
+                <li><strong>Duration:</strong> Approximately 3-5 minutes</li>
+            </ul>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="startTestBtn" class="btn btn-primary btn-large">🚀 Start Realistic Test</button>
+            <a href="/eye-tests" class="btn btn-secondary">Back to Tests</a>
+        </div>
+    </div>
+
+    <div id="testContent" class="test-container" style="display: none;">
+        <div class="test-progress">
+            <strong>Plate <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></strong>
+            <span style="margin-left: 20px;">Score: <span id="scoreDisplay">0</span></span>
+        </div>
+        
+        <canvas id="testPlate" class="test-plate" width="400" height="400"></canvas>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <input type="number" id="answerInput" class="answer-input" placeholder="Enter number" maxlength="3">
+            <div style="margin-top: 20px;">
+                <button id="submitAnswer" class="btn btn-primary">✓ Submit Answer</button>
+                <button id="skipQuestion" class="btn btn-secondary">→ Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="testResults" class="test-container" style="display: none;">
+        <h2 style="text-align: center;">📊 Test Results</h2>
+        
+        <div class="score-display" id="scorePercentage">0%</div>
+        
+        <div class="results-card">
+            <h3>Your Score: <span id="correctCount">0</span> / <span id="totalCount">10</span></h3>
+            <h3 id="resultType" class="result-normal">Result Type</h3>
+            <p id="analysisText" style="margin-top: 20px; line-height: 1.8;"></p>
+        </div>
+        
+        <div class="results-card">
+            <h3>📋 Detailed Answers</h3>
+            <div id="detailedAnswers"></div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="restartTest" class="btn btn-primary">🔄 Retake Test</button>
+            <a href="/eye-tests" class="btn btn-secondary">Back to Tests</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// REALISTIC ISHIHARA COLOR BLINDNESS TEST - INLINE VERSION
+// 10 plates with 8 colors each, varying dot sizes, medical-grade
+// ════════════════════════════════════════════════════════════════
+
+const tests = [
+    {
+        number: 12,
+        patterns: [
+            { colors: ['#E88873', '#EA9E8D', '#F0A898', '#E67C66'], weight: 45 },
+            { colors: ['#739F5D', '#8FB574', '#A4C798', '#5E8F4A'], weight: 55 }
+        ],
+        type: 'control'
+    },
+    {
+        number: 8,
+        patterns: [
+            { colors: ['#E6A85C', '#F4C083', '#FCDA9A', '#D99648'], weight: 48 },
+            { colors: ['#6F5F9E', '#8976B8', '#A18FCC', '#5A4B85'], weight: 52 }
+        ],
+        type: 'protanopia'
+    },
+    {
+        number: 6,
+        patterns: [
+            { colors: ['#F7E59C', '#FFF1B8', '#FFFAD0', '#EDD780'], weight: 46 },
+            { colors: ['#4A90C8', '#6BA8D8', '#8BBEE8', '#2F78B0'], weight: 54 }
+        ],
+        type: 'normal'
+    },
+    {
+        number: 29,
+        patterns: [
+            { colors: ['#FC9D6B', '#FFB58A', '#FFC8A2', '#E88654'], weight: 44 },
+            { colors: ['#A3D4EA', '#BADDEE', '#D1E6F3', '#8AC5DD'], weight: 56 }
+        ],
+        type: 'deuteranopia'
+    },
+    {
+        number: 5,
+        patterns: [
+            { colors: ['#D95B5B', '#E77373', '#F58B8B', '#C74343'], weight: 47 },
+            { colors: ['#B4DDB4', '#C8E6C8', '#DCF0DC', '#A0D4A0'], weight: 53 }
+        ],
+        type: 'protanopia'
+    },
+    {
+        number: 3,
+        patterns: [
+            { colors: ['#F57C5A', '#FF9473', '#FFAC8C', '#E36442'], weight: 45 },
+            { colors: ['#73C2A5', '#8DD4B8', '#A7E6CB', '#5EB092'], weight: 55 }
+        ],
+        type: 'normal'
+    },
+    {
+        number: 15,
+        patterns: [
+            { colors: ['#FFE8A3', '#FFF0BB', '#FFF8D3', '#F5DC8B'], weight: 46 },
+            { colors: ['#5D8CC7', '#76A2D6', '#8FB8E5', '#4476B5'], weight: 54 }
+        ],
+        type: 'normal'
+    },
+    {
+        number: 74,
+        patterns: [
+            { colors: ['#FDAF6B', '#FFC083', '#FFD19B', '#EA9E53'], weight: 43 },
+            { colors: ['#A73C50', '#BF5567', '#D76D7E', '#8F2438'], weight: 57 }
+        ],
+        type: 'deuteranopia'
+    },
+    {
+        number: 2,
+        patterns: [
+            { colors: ['#DD5959', '#ED7070', '#FD8787', '#CB4141'], weight: 48 },
+            { colors: ['#E9F79E', '#F1FCB8', '#F9FFD0', '#E1F286'], weight: 52 }
+        ],
+        type: 'protanopia'
+    },
+    {
+        number: 45,
+        patterns: [
+            { colors: ['#F7E8A0', '#FFF1B8', '#FFFAD0', '#EFDC88'], weight: 45 },
+            { colors: ['#F57C5A', '#FF9473', '#FFAC8C', '#E36442'], weight: 55 }
+        ],
+        type: 'normal'
+    }
+];
+
+let currentTestIndex = 0;
+let answers = [];
+let correctAnswers = 0;
+
+function startTest() {
+    document.getElementById('testInstructions').style.display = 'none';
+    document.getElementById('testContent').style.display = 'block';
+    document.getElementById('totalQuestions').textContent = tests.length;
+    showTest();
+}
+
+function showTest() {
+    if (currentTestIndex >= tests.length) {
+        showResults();
+        return;
+    }
+    
+    const test = tests[currentTestIndex];
+    document.getElementById('currentQuestion').textContent = currentTestIndex + 1;
+    document.getElementById('scoreDisplay').textContent = correctAnswers;
+    
+    const canvas = document.getElementById('testPlate');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 400, 400);
+    
+    drawRealisticIshihara(ctx, test.patterns, test.number);
+    
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').focus();
+}
+
+function drawRealisticIshihara(ctx, patterns, number) {
+    const centerX = 200;
+    const centerY = 200;
+    const radius = 180;
+    
+    const backgroundPattern = patterns[0];
+    const foregroundPattern = patterns[1];
+    
+    // Step 1: Background dots
+    for (let i = 0; i < 400; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * radius;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        const sizeCategory = Math.random();
+        let dotSize = sizeCategory < 0.3 ? 3 + Math.random() * 4 :
+                      sizeCategory < 0.7 ? 6 + Math.random() * 6 :
+                      10 + Math.random() * 8;
+        
+        const colorIndex = Math.floor(Math.random() * backgroundPattern.colors.length);
+        ctx.fillStyle = backgroundPattern.colors[colorIndex];
+        ctx.globalAlpha = 0.85 + Math.random() * 0.15;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    ctx.globalAlpha = 1.0;
+    
+    // Step 2: Create number mask
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 400;
+    tempCanvas.height = 400;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    tempCtx.font = 'bold 140px Arial';
+    tempCtx.textAlign = 'center';
+    tempCtx.textBaseline = 'middle';
+    tempCtx.fillStyle = '#000000';
+    tempCtx.fillText(number, 200, 200);
+    
+    const imageData = tempCtx.getImageData(0, 0, 400, 400);
+    
+    // Step 3: Foreground dots
+    for (let y = 0; y < 400; y += 4) {
+        for (let x = 0; x < 400; x += 4) {
+            const index = (y * 400 + x) * 4;
+            const alpha = imageData.data[index + 3];
+            
+            if (alpha > 128 && Math.random() < 0.6) {
+                const sizeCategory = Math.random();
+                let dotSize = sizeCategory < 0.3 ? 3 + Math.random() * 4 :
+                              sizeCategory < 0.7 ? 5 + Math.random() * 5 :
+                              8 + Math.random() * 7;
+                
+                const jitterX = x + (Math.random() - 0.5) * 8;
+                const jitterY = y + (Math.random() - 0.5) * 8;
+                
+                const colorIndex = Math.floor(Math.random() * foregroundPattern.colors.length);
+                ctx.fillStyle = foregroundPattern.colors[colorIndex];
+                ctx.globalAlpha = 0.85 + Math.random() * 0.15;
+                
+                ctx.beginPath();
+                ctx.arc(jitterX, jitterY, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+    
+    ctx.globalAlpha = 1.0;
+    
+    // Step 4: Overlap dots
+    for (let i = 0; i < 100; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * radius;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        const dotSize = 4 + Math.random() * 6;
+        const colorIndex = Math.floor(Math.random() * backgroundPattern.colors.length);
+        ctx.fillStyle = backgroundPattern.colors[colorIndex];
+        ctx.globalAlpha = 0.7 + Math.random() * 0.3;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    ctx.globalAlpha = 1.0;
+}
+
+function submitAnswer() {
+    const test = tests[currentTestIndex];
+    const userAnswer = document.getElementById('answerInput').value.trim();
+    
+    const isCorrect = userAnswer === test.number.toString();
+    
+    answers.push({
+        plate: currentTestIndex + 1,
+        expected: test.number,
+        userAnswer: userAnswer || 'No answer',
+        correct: isCorrect,
+        type: test.type
+    });
+    
+    if (isCorrect) correctAnswers++;
+    
+    currentTestIndex++;
+    showTest();
+}
+
+function skipQuestion() {
+    const test = tests[currentTestIndex];
+    
+    answers.push({
+        plate: currentTestIndex + 1,
+        expected: test.number,
+        userAnswer: 'Skipped',
+        correct: false,
+        type: test.type
+    });
+    
+    currentTestIndex++;
+    showTest();
+}
+
+function showResults() {
+    document.getElementById('testContent').style.display = 'none';
+    document.getElementById('testResults').style.display = 'block';
+    
+    const percentage = Math.round((correctAnswers / tests.length) * 100);
+    document.getElementById('scorePercentage').textContent = percentage + '%';
+    document.getElementById('correctCount').textContent = correctAnswers;
+    document.getElementById('totalCount').textContent = tests.length;
+    
+    let resultText, resultClass;
+    
+    if (percentage >= 90) {
+        resultText = '✓ Normal Color Vision';
+        resultClass = 'result-normal';
+    } else if (percentage >= 70) {
+        resultText = '⚠ Mild Color Vision Deficiency';
+        resultClass = 'result-mild';
+    } else if (percentage >= 50) {
+        resultText = '⚠ Moderate Color Vision Deficiency';
+        resultClass = 'result-moderate';
+    } else {
+        resultText = '✗ Significant Color Vision Deficiency';
+        resultClass = 'result-severe';
+    }
+    
+    document.getElementById('resultType').textContent = resultText;
+    document.getElementById('resultType').className = resultClass;
+    
+    const protanopiaErrors = answers.filter(a => a.type === 'protanopia' && !a.correct).length;
+    const deuteranopiaErrors = answers.filter(a => a.type === 'deuteranopia' && !a.correct).length;
+    
+    let analysis = '';
+    if (protanopiaErrors > deuteranopiaErrors && protanopiaErrors >= 2) {
+        analysis = 'Your test results suggest possible <strong>Protanopia</strong> (red-green color blindness, red-weak). ';
+    } else if (deuteranopiaErrors > protanopiaErrors && deuteranopiaErrors >= 2) {
+        analysis = 'Your test results suggest possible <strong>Deuteranopia</strong> (red-green color blindness, green-weak). ';
+    } else if (percentage < 90) {
+        analysis = 'Your test results suggest some difficulty with color discrimination. ';
+    } else {
+        analysis = 'Your test results indicate <strong>normal color vision</strong>. ';
+    }
+    
+    analysis += 'For a professional diagnosis, please consult an eye care specialist.';
+    
+    document.getElementById('analysisText').innerHTML = analysis;
+    
+    const detailsHtml = answers.map(a => `
+        <div class="answer-row ${a.correct ? 'correct' : 'incorrect'}">
+            <span><strong>Plate ${a.plate}</strong></span>
+            <span>Expected: ${a.expected}</span>
+            <span>Your Answer: ${a.userAnswer}</span>
+            <span>${a.correct ? '✓' : '✗'}</span>
+        </div>
+    `).join('');
+    
+    document.getElementById('detailedAnswers').innerHTML = detailsHtml;
+}
+
+function restartTest() {
+    currentTestIndex = 0;
+    answers = [];
+    correctAnswers = 0;
+    
+    document.getElementById('testResults').style.display = 'none';
+    document.getElementById('testInstructions').style.display = 'block';
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('startTestBtn').addEventListener('click', startTest);
+    document.getElementById('submitAnswer').addEventListener('click', submitAnswer);
+    document.getElementById('skipQuestion').addEventListener('click', skipQuestion);
+    document.getElementById('restartTest').addEventListener('click', restartTest);
+    
+    document.getElementById('answerInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') submitAnswer();
+    });
+});
+</script>
+{% endblock %}

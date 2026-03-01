@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lens Frames & Recommendations — Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ── Frames page specific ── */
+        .frames-page-header {
+            background: linear-gradient(135deg, #007BFF 0%, #0288D1 100%);
+            border-radius: 20px;
+            padding: 48px 40px;
+            color: #fff;
+            margin-bottom: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+        .frames-page-header::before {
+            content: '🕶️';
+            position: absolute;
+            right: 40px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 100px;
+            opacity: 0.15;
+        }
+        .frames-page-header h1 { font-size: 32px; color: #fff; margin-bottom: 8px; }
+        .frames-page-header p  { color: rgba(255,255,255,0.88); font-size: 15px; max-width: 500px; }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            align-items: center;
+        }
+        .filter-label { font-size: 13px; font-weight: 600; color: #3A5A7C; margin-right: 4px; }
+        .filter-chip {
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1.5px solid #D0E4F7;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3A5A7C;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .filter-chip:hover   { border-color: #007BFF; color: #007BFF; }
+        .filter-chip.active  { background: #007BFF; border-color: #007BFF; color: #fff; }
+
+        /* ── Frames grid ── */
+        .frames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
+            margin-bottom: 48px;
+        }
+
+        .frame-card {
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.22s;
+        }
+        .frame-card:hover {
+            border-color: rgba(0,123,255,0.35);
+            box-shadow: 0 10px 32px rgba(0,123,255,0.12);
+            transform: translateY(-4px);
+        }
+
+        .frame-card-img {
+            background: linear-gradient(145deg, #E3F2FD, #F0F7FF);
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            border-bottom: 1px solid #E3F2FD;
+            position: relative;
+        }
+        .frame-badge {
+            position: absolute;
+            top: 12px; right: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-popular { background: #007BFF; color: #fff; }
+        .badge-new     { background: #00C853; color: #fff; }
+        .badge-premium { background: #FF8F00; color: #fff; }
+
+        .frame-card-body { padding: 18px 20px; }
+        .frame-card-body h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .frame-card-body .frame-type { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #007BFF; font-weight: 700; margin-bottom: 10px; }
+
+        .frame-specs {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 14px;
+        }
+        .frame-spec { display: flex; justify-content: space-between; font-size: 12px; }
+        .frame-spec .spec-key   { color: #7A98B8; }
+        .frame-spec .spec-val   { font-weight: 600; color: #0D1B2A; }
+
+        .frame-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-top: 1px solid #E3F2FD;
+            background: #F9FCFF;
+        }
+        .frame-price { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: #007BFF; }
+        .frame-price span { font-size: 12px; font-weight: 500; color: #7A98B8; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* ── Recommendation engine section ── */
+        .rec-section {
+            background: #F4F8FF;
+            border: 1px solid #D0E4F7;
+            border-radius: 20px;
+            padding: 36px;
+            margin-bottom: 48px;
+        }
+        .rec-section h2 { font-size: 22px; margin-bottom: 6px; }
+        .rec-section > p { font-size: 14px; color: #3A5A7C; margin-bottom: 24px; }
+
+        .rec-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .rec-result {
+            background: #fff;
+            border: 1.5px solid #007BFF;
+            border-radius: 14px;
+            padding: 22px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .rec-result.visible { display: block; }
+        .rec-result h3 { font-size: 17px; color: #007BFF; margin-bottom: 14px; }
+        .rec-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #E3F2FD;
+        }
+        .rec-item:last-child { border-bottom: none; }
+        .rec-item-icon { font-size: 22px; flex-shrink: 0; }
+        .rec-item-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .rec-item-text p  { font-size: 12px; color: #3A5A7C; }
+
+        /* ── Optical centres ── */
+        .centres-section { margin-bottom: 48px; }
+        .centres-section h2 { font-size: 22px; margin-bottom: 6px; }
+        .centres-section > p { font-size: 14px; color: #3A5A7C; margin-bottom: 22px; }
+
+        .centres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .centre-card {
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 14px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        .centre-card:hover {
+            border-color: rgba(0,123,255,0.3);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.1);
+        }
+        .centre-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .centre-icon { font-size: 28px; }
+        .centre-top h3 { font-size: 15px; font-weight: 700; }
+        .centre-top p  { font-size: 11px; color: #007BFF; font-weight: 600; }
+        .centre-details { font-size: 12px; color: #7A98B8; line-height: 1.6; }
+        .centre-rating { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #FF8F00; margin-top: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <nav class="dashboard-nav">
+    <div class="nav-inner">
+        <div class="nav-brand">
+            <div class="logo-icon">
+                <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+            </div>
+            <span class="brand-name">LENS CARE</span>
+        </div>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/eye_test" class="nav-link">Eye Test</a>
+            <a href="/lens_frames" class="nav-link active">Frames</a>
+            <a href="/eye_insights" class="nav-link">Insights</a>
+        </div>
+        <div class="nav-actions">
+            <span class="nav-user">{{ user.full_name or user.username }}</span>
+            <a href="/prescription" class="btn btn-grad-green btn-sm">+ New Rx</a>
+            <a href="/logout"       class="btn btn-outline    btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+        <div class="page-body">
+            <!-- ── HEADER ── -->
+            <div class="frames-page-header">
+                <h1>🕶️ Lens Frames & Recommendations</h1>
+                <p>Explore frames curated for your prescription strength and face shape. Get instant lens recommendations below.</p>
+            </div>
+
+            <!-- ── SMART RECOMMENDATION ENGINE ── -->
+            <div class="rec-section">
+                <h2>🤖 Get Your Personalised Lens Recommendation</h2>
+                <p>Enter your prescription values below for an instant recommendation on lens type, material, and coating.</p>
+
+                <div class="rec-inputs">
+                    <div class="form-group">
+                        <label>Right Eye SPH (OD)</label>
+                        <input type="number" id="rec-od-sph" step="0.25" placeholder="-2.00" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Left Eye SPH (OS)</label>
+                        <input type="number" id="rec-os-sph" step="0.25" placeholder="-1.75" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Right Eye CYL (OD)</label>
+                        <input type="number" id="rec-od-cyl" step="0.25" placeholder="-0.50" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="rec-age" placeholder="25" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="getRecommendation()">Get Recommendation →</button>
+
+                <div class="rec-result" id="recResult">
+                    <h3>✅ Your Personalised Lens Recommendation</h3>
+                    <div id="recItems"></div>
+                </div>
+            </div>
+
+            <!-- ── FRAME FILTER ── -->
+            <div class="filter-bar">
+                <span class="filter-label">Filter by:</span>
+                <div class="filter-chip active" onclick="filterFrames('all', this)">All Frames</div>
+                <div class="filter-chip" onclick="filterFrames('rimless', this)">Rimless</div>
+                <div class="filter-chip" onclick="filterFrames('full-rim', this)">Full Rim</div>
+                <div class="filter-chip" onclick="filterFrames('semi-rim', this)">Semi-rim</div>
+                <div class="filter-chip" onclick="filterFrames('sport', this)">Sport</div>
+                <div class="filter-chip" onclick="filterFrames('kids', this)">Kids</div>
+            </div>
+
+            <!-- ── FRAMES GRID ── -->
+            <div class="frames-grid" id="framesGrid">
+
+                <div class="frame-card" data-type="full-rim">
+                    <div class="frame-card-img">
+                        🕶️
+                        <span class="frame-badge badge-popular">Popular</span>
+                    </div>
+                    <div class="frame-card-body">
+                        <div class="frame-type">Full Rim · Acetate</div>
+                        <h3>Classic Wayfarer Pro</h3>
+                        <div class="frame-specs">
+                            <div class="frame-spec"><span class="spec-key">Best for</span><span class="spec-val">Oval & Round faces</span></div>
+                            <div class="frame-spec"><span class="spec-key">Power range</span><span class="spec-val">Up to ±8.00D</span></div>
+                            <div class="frame-spec"><span class="spec-key">Weight</span><span class="spec-val">24g — Light</span></div>
+                            <div class="frame-spec"><span class="spec-key">Coating</span><span class="spec-val">Anti-reflective</span></div>
+                        </div>
+                    </div>
+                    <div class="frame-card-footer">
+                        <div class="frame-price">₹1,299 <span>/ frame</span></div>
+                        <a href="https://www.lenskart.com" target="_blank" class="btn btn-primary btn-sm">View at Lenskart</a>
+                    </div>
+                </div>
+
+                <div class="frame-card" data-type="rimless">
+                    <div class="frame-card-img">
+                        🔲
+                        <span class="frame-badge badge-new">New</span>
+                    </div>
+                    <div class="frame-card-body">
+                        <div class="frame-type">Rimless · Titanium</div>
+                        <h3>AirFrame Ultra Light</h3>
+                        <div class="frame-specs">
+                            <div class="frame-spec"><span class="spec-key">Best for</span><span class="spec-val">All face shapes</span></div>
+                            <div class="frame-spec"><span class="spec-key">Power range</span><span class="spec-val">Up to ±6.00D</span></div>
+                            <div class="frame-spec"><span class="spec-key">Weight</span><span class="spec-val">9g — Ultra Light</span></div>
+                            <div class="frame-spec"><span class="spec-key">Coating</span><span class="spec-val">Blue-light + UV</span></div>
+                        </div>
+                    </div>
+                    <div class="frame-card-footer">
+                        <div class="frame-price">₹2,499 <span>/ frame</span></div>
+                        <a href="https://www.titan.co.in/eyewear" target="_blank" class="btn btn-primary btn-sm">View at Titan Eye+</a>
+                    </div>
+                </div>
+
+                <div class="frame-card" data-type="full-rim">
+                    <div class="frame-card-img">
+                        ⭕
+                        <span class="frame-badge badge-premium">Premium</span>
+                    </div>
+                    <div class="frame-card-body">
+                        <div class="frame-type">Full Rim · Acetate</div>
+                        <h3>Round Retro Classic</h3>
+                        <div class="frame-specs">
+                            <div class="frame-spec"><span class="spec-key">Best for</span><span class="spec-val">Square & Heart faces</span></div>
+                            <div class="frame-spec"><span class="spec-key">Power range</span><span class="spec-val">Up to ±10.00D</span></div>
+                            <div class="frame-spec"><span class="spec-key">Weight</span><span class="spec-val">21g — Light</span></div>
+                            <div class="frame-spec"><span class="spec-key">Coating</span><span class="spec-val">Photochromic</span></div>
+                        </div>
+                    </div>
+                    <div class="frame-card-footer">
+                        <div class="frame-price">₹3,199 <span>/ frame</span></div>
+                        <a href="https://www.specsmakers.in" target="_blank" class="btn btn-primary btn-sm">View at Specsmakers</a>
+                    </div>
+                </div>
+
+                <div class="frame-card" data-type="semi-rim">
+                    <div class="frame-card-img">
+                        🔵
+                    </div>
+                    <div class="frame-card-body">
+                        <div class="frame-type">Semi-rim · Metal</div>
+                        <h3>Professional Half-rim</h3>
+                        <div class="frame-specs">
+                            <div class="frame-spec"><span class="spec-key">Best for</span><span class="spec-val">Oblong & Oval faces</span></div>
+                            <div class="frame-spec"><span class="spec-key">Power range</span><span class="spec-val">Up to ±5.00D</span></div>
+                            <div class="frame-spec"><span class="spec-key">Weight</span><span class="spec-val">16g — Light</span></div>
+                            <div class="frame-spec"><span class="spec-key">Coating</span><span class="spec-val">Anti-reflective</span></div>
+                        </div>
+                    </div>
+                    <div class="frame-card-footer">
+                        <div class="frame-price">₹999 <span>/ frame</span></div>
+                        <a href="https://www.lenskart.com" target="_blank" class="btn btn-primary btn-sm">View at Lenskart</a>
+                    </div>
+                </div>
+
+                <div class="frame-card" data-type="sport">
+                    <div class="frame-card-img">
+                        🏃
+                        <span class="frame-badge badge-new">Sport</span>
+                    </div>
+                    <div class="frame-card-body">
+                        <div class="frame-type">Sport · TR90 Nylon</div>
+                        <h3>ActivePro Wraparound</h3>
+                        <div class="frame-specs">
+                            <div class="frame-spec"><span class="spec-key">Best for</span><span class="spec-val">Active lifestyles</span></div>
+                            <div class="frame-spec"><span class="spec-key">Power range</span><span class="spec-val">Up to ±4.00D</span></div>
+                            <div class="frame-spec"><span class="spec-key">Weight</span><span class="spec-val">18g — Flexible</span></div>
+                            <div class="frame-spec"><span class="spec-key">Coating</span><span class="spec-val">UV400 + Polarised</span></div>
+                        </div>
+                    </div>
+                    <div class="frame-card-footer">
+                        <div class="frame-price">₹1,799 <span>/ frame</span></div>
+                        <a href="https://www.titan.co.in/eyewear" target="_blank" class="btn btn-primary btn-sm">View at Titan Eye+</a>
+                    </div>
+                </div>
+
+                <div class="frame-card" data-type="kids">
+                    <div class="frame-card-img">
+                        🌈
+                        <span class="frame-badge badge-popular">Kids</span>
+                    </div>
+                    <div class="frame-card-body">
+                        <div class="frame-type">Kids · Flexible TR90</div>
+                        <h3>KidsFirst Durable Frame</h3>
+                        <div class="frame-specs">
+                            <div class="frame-spec"><span class="spec-key">Best for</span><span class="spec-val">Ages 4–14</span></div>
+                            <div class="frame-spec"><span class="spec-key">Power range</span><span class="spec-val">Up to ±8.00D</span></div>
+                            <div class="frame-spec"><span class="spec-key">Weight</span><span class="spec-val">15g — Very Light</span></div>
+                            <div class="frame-spec"><span class="spec-key">Coating</span><span class="spec-val">Blue-light blocking</span></div>
+                        </div>
+                    </div>
+                    <div class="frame-card-footer">
+                        <div class="frame-price">₹899 <span>/ frame</span></div>
+                        <a href="https://www.specsmakers.in" target="_blank" class="btn btn-primary btn-sm">View at Specsmakers</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── OPTICAL CENTRES ── -->
+            <div class="centres-section">
+                <h2>📍 Order from Trusted Optical Centres</h2>
+                <p>These centres accept your prescription and deliver across India</p>
+                <div class="centres-grid">
+                    <div class="centre-card">
+                        <div class="centre-top">
+                            <span class="centre-icon">👓</span>
+                            <div><h3>Lenskart</h3><p>🌐 lenskart.com</p></div>
+                        </div>
+                        <div class="centre-details">India's largest eyewear retailer. 2000+ stores + home trial. Accepts all prescriptions.</div>
+                        <div class="centre-rating">⭐ 4.6 · 1.2M+ reviews</div>
+                        <a href="https://www.lenskart.com" target="_blank" class="btn btn-primary btn-sm" style="margin-top:12px; width:100%;">Visit Lenskart →</a>
+                    </div>
+                    <div class="centre-card">
+                        <div class="centre-top">
+                            <span class="centre-icon">🔵</span>
+                            <div><h3>Titan Eye+</h3><p>🌐 titan.co.in/eyewear</p></div>
+                        </div>
+                        <div class="centre-details">Premium optical chain. 800+ stores. Known for titanium and rimless frames.</div>
+                        <div class="centre-rating">⭐ 4.5 · 380K+ reviews</div>
+                        <a href="https://www.titan.co.in/eyewear" target="_blank" class="btn btn-primary btn-sm" style="margin-top:12px; width:100%;">Visit Titan Eye+ →</a>
+                    </div>
+                    <div class="centre-card">
+                        <div class="centre-top">
+                            <span class="centre-icon">🟢</span>
+                            <div><h3>Specsmakers</h3><p>🌐 specsmakers.in</p></div>
+                        </div>
+                        <div class="centre-details">South India's top optical chain. Affordable prices. Specialises in kids and high-power lenses.</div>
+                        <div class="centre-rating">⭐ 4.4 · 210K+ reviews</div>
+                        <a href="https://www.specsmakers.in" target="_blank" class="btn btn-primary btn-sm" style="margin-top:12px; width:100%;">Visit Specsmakers →</a>
+                    </div>
+                    <div class="centre-card">
+                        <div class="centre-top">
+                            <span class="centre-icon">🔴</span>
+                            <div><h3>GKB Opticals</h3><p>🌐 gkboptical.com</p></div>
+                        </div>
+                        <div class="centre-details">Heritage brand since 1978. Expert optometrists on staff. Known for designer frames.</div>
+                        <div class="centre-rating">⭐ 4.3 · 95K+ reviews</div>
+                        <a href="https://www.gkboptical.com" target="_blank" class="btn btn-primary btn-sm" style="margin-top:12px; width:100%;">Visit GKB Opticals →</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Filter frames
+        function filterFrames(type, el) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.frame-card').forEach(card => {
+                if (type === 'all' || card.dataset.type === type) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Instant recommendation engine
+        function getRecommendation() {
+            const odSph = parseFloat(document.getElementById('rec-od-sph').value) || 0;
+            const osSph = parseFloat(document.getElementById('rec-os-sph').value) || 0;
+            const odCyl = parseFloat(document.getElementById('rec-od-cyl').value) || 0;
+            const age   = parseInt(document.getElementById('rec-age').value) || 25;
+
+            const avgPower = (Math.abs(odSph) + Math.abs(osSph)) / 2;
+            const hasCyl   = Math.abs(odCyl) >= 0.5;
+
+            let lensType, material, coating, frame;
+
+            // Lens type
+            if (odSph < 0 || osSph < 0) lensType = '🔵 Concave (Myopia correction)';
+            else if (odSph > 0 || osSph > 0) lensType = '🟡 Convex (Hyperopia correction)';
+            else lensType = '⚪ Plano (No power needed)';
+
+            // Material
+            if (avgPower <= 2)       material = 'CR-39 Standard Plastic — lightweight & affordable';
+            else if (avgPower <= 4)  material = 'Polycarbonate — impact resistant, thinner than CR-39';
+            else if (avgPower <= 6)  material = '1.67 High-Index — thinner, ideal for mid-high power';
+            else                     material = '1.74 Ultra High-Index — thinnest available, for high power';
+
+            // Coating
+            const coatings = ['Anti-reflective (standard)'];
+            if (age < 40) coatings.push('Blue-light blocking (screen protection)');
+            if (hasCyl)   coatings.push('Hard coating (astigmatism lenses are more prone to scratches)');
+            if (avgPower > 4) coatings.push('UV400 protection');
+
+            // Frame
+            if (avgPower > 6)       frame = 'Full-rim frame recommended (hides thick lens edges)';
+            else if (avgPower > 3)  frame = 'Any frame works — rimless possible at this power';
+            else                    frame = 'All frame types suitable, including rimless';
+
+            const items = [
+                { icon: '🔬', title: 'Lens Type', desc: lensType },
+                { icon: '💎', title: 'Recommended Material', desc: material },
+                { icon: '🛡️', title: 'Recommended Coatings', desc: coatings.join(' · ') },
+                { icon: '🕶️', title: 'Frame Guidance', desc: frame },
+            ];
+
+            document.getElementById('recItems').innerHTML = items.map(i => `
+                <div class="rec-item">
+                    <span class="rec-item-icon">${i.icon}</span>
+                    <div class="rec-item-text">
+                        <h4>${i.title}</h4>
+                        <p>${i.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('recResult').classList.add('visible');
+        }
+    </script>
+</body>
+</html>

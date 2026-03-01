@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tell Us About You — Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(150deg, #E3F2FD 0%, #ffffff 50%, #E8F5E9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .onboard-wrapper {
+            width: 100%;
+            max-width: 680px;
+        }
+
+        /* Step progress bar */
+        .step-progress {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 36px;
+        }
+        .step-dot {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            border: 2px solid #D0E4F7;
+            background: #fff;
+            color: #7A98B8;
+        }
+        .step-dot.active  { background: #007BFF; border-color: #007BFF; color: #fff; box-shadow: 0 4px 14px rgba(0,123,255,0.3); }
+        .step-dot.done    { background: #00C853; border-color: #00C853; color: #fff; }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #D0E4F7;
+            transition: background 0.3s;
+        }
+        .step-line.done { background: #00C853; }
+
+        /* Card */
+        .onboard-card {
+            background: #fff;
+            border: 1px solid #D0E4F7;
+            border-radius: 24px;
+            padding: 44px 44px 36px;
+            box-shadow: 0 8px 40px rgba(0,100,200,0.1);
+        }
+
+        .onboard-card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .onboard-icon {
+            width: 54px; height: 54px;
+            background: linear-gradient(135deg, #007BFF, #0288D1);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 4px 14px rgba(0,123,255,0.3);
+            flex-shrink: 0;
+        }
+        .onboard-card-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px; font-weight: 800;
+            color: #0D1B2A;
+            margin-bottom: 3px;
+        }
+        .onboard-card-header p { font-size: 13px; color: #7A98B8; }
+
+        /* Step panels */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; animation: panelIn 0.35s ease; }
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateX(18px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Option chips */
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .chip {
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: 1.5px solid #D0E4F7;
+            background: #F4F8FF;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3A5A7C;
+            cursor: pointer;
+            transition: all 0.18s;
+            user-select: none;
+        }
+        .chip:hover    { border-color: #007BFF; color: #007BFF; background: #E3F2FD; }
+        .chip.selected { border-color: #007BFF; background: #007BFF; color: #fff; box-shadow: 0 3px 10px rgba(0,123,255,0.25); }
+
+        /* Range slider */
+        .slider-wrap { margin-bottom: 24px; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: #7A98B8; margin-bottom: 8px; }
+        .slider-label strong { color: #007BFF; }
+        input[type="range"] {
+            width: 100%;
+            accent-color: #007BFF;
+            height: 6px;
+        }
+
+        /* Navigation buttons */
+        .onboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #E3F2FD;
+        }
+
+        .btn-onboard-next {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #007BFF 0%, #0062CC 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(0,123,255,0.3);
+        }
+        .btn-onboard-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,123,255,0.4); }
+
+        .btn-onboard-skip {
+            font-size: 13px;
+            color: #7A98B8;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-decoration: underline;
+        }
+        .btn-onboard-skip:hover { color: #3A5A7C; }
+
+        /* Final success screen */
+        .onboard-success {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .success-eye {
+            width: 90px; height: 90px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid #00C853;
+            box-shadow: 0 0 0 8px rgba(0,200,83,0.12), 0 8px 28px rgba(0,200,83,0.2);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+            overflow: hidden;
+            animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .success-eye img { width: 60px; height: 60px; object-fit: contain; }
+        @keyframes successPop {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        .onboard-success h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px; font-weight: 800;
+            color: #0D1B2A;
+            margin-bottom: 10px;
+        }
+        .onboard-success p { font-size: 15px; color: #3A5A7C; margin-bottom: 28px; line-height: 1.7; }
+    </style>
+</head>
+<body>
+    <div class="onboard-wrapper">
+
+        <!-- Progress -->
+        <div class="step-progress" id="stepProgress">
+            <div class="step-dot active" id="dot-1">1</div>
+            <div class="step-line" id="line-1"></div>
+            <div class="step-dot" id="dot-2">2</div>
+            <div class="step-line" id="line-2"></div>
+            <div class="step-dot" id="dot-3">3</div>
+            <div class="step-line" id="line-3"></div>
+            <div class="step-dot" id="dot-4">4</div>
+        </div>
+
+        <!-- Card -->
+        <div class="onboard-card">
+
+            <!-- STEP 1: Role / Field of study -->
+            <div class="step-panel active" id="step-1">
+                <div class="onboard-card-header">
+                    <div class="onboard-icon">🎓</div>
+                    <div>
+                        <h2>What's your field of study or work?</h2>
+                        <p>Helps us personalise your lens and health recommendations</p>
+                    </div>
+                </div>
+                <div class="chip-group" id="fieldChips">
+                    <div class="chip" data-val="student-school">School Student</div>
+                    <div class="chip" data-val="student-college">College / University</div>
+                    <div class="chip" data-val="engineering">Engineering / Tech</div>
+                    <div class="chip" data-val="medicine">Medical / Healthcare</div>
+                    <div class="chip" data-val="arts">Arts & Design</div>
+                    <div class="chip" data-val="business">Business / Finance</div>
+                    <div class="chip" data-val="teacher">Teaching / Academia</div>
+                    <div class="chip" data-val="office">Office / Corporate</div>
+                    <div class="chip" data-val="outdoor">Outdoor / Physical Work</div>
+                    <div class="chip" data-val="other">Other</div>
+                </div>
+                <div class="onboard-nav">
+                    <button class="btn-onboard-skip" onclick="skip()">Skip for now</button>
+                    <button class="btn-onboard-next" onclick="nextStep(1)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Screen time -->
+            <div class="step-panel" id="step-2">
+                <div class="onboard-card-header">
+                    <div class="onboard-icon">📱</div>
+                    <div>
+                        <h2>How many hours a day do you spend on screens?</h2>
+                        <p>Helps recommend anti-blue light and UV coatings</p>
+                    </div>
+                </div>
+                <div class="slider-wrap">
+                    <div class="slider-label">
+                        <span>0 hrs</span>
+                        <span>You spend: <strong id="screenHrsLabel">4 hrs/day</strong></span>
+                        <span>12+ hrs</span>
+                    </div>
+                    <input type="range" id="screenHrs" min="0" max="12" value="4" step="1"
+                        oninput="document.getElementById('screenHrsLabel').textContent = this.value + ' hrs/day'">
+                </div>
+                <p style="font-size:13px; color:#3A5A7C; margin-bottom: 20px;">
+                    💡 More than 6 hrs/day? We'll recommend blue-light blocking lenses.
+                </p>
+                <div class="onboard-nav">
+                    <button class="btn-onboard-skip" onclick="prevStep(2)">← Back</button>
+                    <button class="btn-onboard-next" onclick="nextStep(2)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Eye concerns -->
+            <div class="step-panel" id="step-3">
+                <div class="onboard-card-header">
+                    <div class="onboard-icon">👁️</div>
+                    <div>
+                        <h2>Do you have any known eye concerns?</h2>
+                        <p>Select all that apply — you can update this later</p>
+                    </div>
+                </div>
+                <div class="chip-group" id="concernChips">
+                    <div class="chip" data-val="myopia">Myopia (Near-sighted)</div>
+                    <div class="chip" data-val="hyperopia">Hyperopia (Far-sighted)</div>
+                    <div class="chip" data-val="astigmatism">Astigmatism</div>
+                    <div class="chip" data-val="presbyopia">Presbyopia (Reading glasses)</div>
+                    <div class="chip" data-val="color-blind">Color Blindness</div>
+                    <div class="chip" data-val="dry-eyes">Dry Eyes</div>
+                    <div class="chip" data-val="headaches">Screen-related headaches</div>
+                    <div class="chip" data-val="none">No known issues</div>
+                </div>
+                <div class="onboard-nav">
+                    <button class="btn-onboard-skip" onclick="prevStep(3)">← Back</button>
+                    <button class="btn-onboard-next" onclick="nextStep(3)">Continue →</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Frame preference -->
+            <div class="step-panel" id="step-4">
+                <div class="onboard-card-header">
+                    <div class="onboard-icon">🕶️</div>
+                    <div>
+                        <h2>What's your frame style preference?</h2>
+                        <p>We'll highlight these in the lens frame explorer</p>
+                    </div>
+                </div>
+                <div class="chip-group" id="frameChips">
+                    <div class="chip" data-val="minimalist">Minimalist / Rimless</div>
+                    <div class="chip" data-val="classic">Classic Wayfarer</div>
+                    <div class="chip" data-val="round">Round / Retro</div>
+                    <div class="chip" data-val="sporty">Sporty Wraparound</div>
+                    <div class="chip" data-val="square">Full-rim Square</div>
+                    <div class="chip" data-val="cat-eye">Cat-eye</div>
+                    <div class="chip" data-val="no-pref">No preference</div>
+                </div>
+                <div class="onboard-nav">
+                    <button class="btn-onboard-skip" onclick="prevStep(4)">← Back</button>
+                    <button class="btn-onboard-next" onclick="finishOnboarding()">Finish Setup ✓</button>
+                </div>
+            </div>
+
+            <!-- SUCCESS -->
+            <div class="step-panel" id="step-success">
+                <div class="onboard-success">
+                    <div class="success-eye">
+                        <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+                    </div>
+                    <h2>You're all set, {{ user.full_name or user.username }}! 👋</h2>
+                    <p>Your profile is personalised. Head to your dashboard to take an eye test, enter your prescription, and explore lens recommendations.</p>
+                    <a href="/dashboard" class="btn-onboard-next" style="display:inline-block; text-decoration:none;">
+                        Go to My Dashboard →
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        const answers = {};
+
+        // Chip toggle
+        document.querySelectorAll('.chip-group').forEach(group => {
+            group.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    // Multi-select for concerns; single for others
+                    const isMulti = group.id === 'concernChips';
+                    if (!isMulti) {
+                        group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+                    }
+                    chip.classList.toggle('selected');
+                });
+            });
+        });
+
+        function nextStep(from) {
+            // Collect answers
+            if (from === 1) {
+                const sel = [...document.querySelectorAll('#fieldChips .chip.selected')].map(c => c.dataset.val);
+                answers.field = sel[0] || null;
+            } else if (from === 2) {
+                answers.screenHrs = document.getElementById('screenHrs').value;
+            } else if (from === 3) {
+                answers.concerns = [...document.querySelectorAll('#concernChips .chip.selected')].map(c => c.dataset.val);
+            }
+
+            goToStep(from + 1);
+        }
+
+        function prevStep(from) { goToStep(from - 1); }
+
+        function goToStep(n) {
+            document.getElementById('step-' + currentStep).classList.remove('active');
+            currentStep = n;
+            document.getElementById('step-' + currentStep).classList.add('active');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const dot  = document.getElementById('dot-'  + i);
+                const line = document.getElementById('line-' + i);
+                if (i < currentStep)  { dot.className = 'step-dot done'; if (line) line.className = 'step-line done'; }
+                else if (i === currentStep) { dot.className = 'step-dot active'; }
+                else { dot.className = 'step-dot'; if (line) line.className = 'step-line'; }
+            }
+        }
+
+        function finishOnboarding() {
+            answers.framePreference = [...document.querySelectorAll('#frameChips .chip.selected')].map(c => c.dataset.val);
+
+            // Save to backend (non-blocking — proceed regardless)
+            fetch('/save_onboarding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(answers)
+            }).catch(() => {});
+
+            // Show success screen
+            document.getElementById('step-4').classList.remove('active');
+            document.getElementById('step-success').classList.add('active');
+            document.getElementById('stepProgress').style.display = 'none';
+        }
+
+        function skip() { window.location.href = '/dashboard'; }
+    </script>
+</body>
+</html>

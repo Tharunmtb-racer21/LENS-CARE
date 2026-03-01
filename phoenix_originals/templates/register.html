@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(150deg, #E3F2FD 0%, #ffffff 50%, #E8F5E9 100%);
+            min-height: 100vh;
+        }
+
+        .register-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: stretch;
+        }
+
+        /* ── Left panel — branding ── */
+        .register-left {
+            background: linear-gradient(160deg, #007BFF 0%, #0062CC 60%, #00C853 100%);
+            padding: 60px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-left::before {
+            content: '';
+            position: absolute;
+            top: -100px; right: -100px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .register-left::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .reg-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .reg-brand-icon {
+            width: 52px; height: 52px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .reg-brand-icon img { width: 36px; height: 36px; object-fit: contain; }
+        .reg-brand h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 4px;
+            color: #fff;
+        }
+
+        .reg-left-content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px 0; }
+
+        .reg-left-content h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 38px; font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .reg-left-content p {
+            color: rgba(255,255,255,0.85);
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .reg-perks { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+        .reg-perks li {
+            display: flex; align-items: center; gap: 12px;
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+        .reg-perks li span.perk-icon {
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .reg-footer-note {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* ── Right panel — form ── */
+        .register-right {
+            background: #fff;
+            padding: 48px 52px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .reg-form-header { margin-bottom: 32px; }
+        .reg-form-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px; font-weight: 800;
+            color: #0D1B2A;
+            margin-bottom: 6px;
+        }
+        .reg-form-header p { font-size: 14px; color: #3A5A7C; }
+
+        /* Form grid */
+        .reg-form { display: flex; flex-direction: column; gap: 0; }
+        .reg-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .reg-grid-1 { margin-bottom: 16px; }
+
+        .reg-form .form-group { margin-bottom: 0; }
+
+        .reg-form label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #3A5A7C;
+            margin-bottom: 6px;
+        }
+
+        .reg-form input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #D0E4F7;
+            border-radius: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            color: #0D1B2A;
+            background: #F9FCFF;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .reg-form input:focus {
+            border-color: #007BFF;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        .reg-form input.valid   { border-color: #00C853; }
+        .reg-form input.invalid { border-color: #D32F2F; }
+
+        .section-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 20px 0 16px;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #D0E4F7;
+        }
+        .section-divider span {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7A98B8;
+            white-space: nowrap;
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            background: #E3F2FD;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .password-strength-bar {
+            height: 100%;
+            border-radius: 2px;
+            width: 0;
+            transition: all 0.3s;
+        }
+
+        .reg-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #007BFF 0%, #0062CC 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 24px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 16px rgba(0,123,255,0.3);
+        }
+        .reg-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,123,255,0.4);
+        }
+        .reg-submit-btn:active { transform: translateY(0); }
+
+        .reg-signin-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7A98B8;
+        }
+        .reg-signin-link a { color: #007BFF; font-weight: 600; }
+
+        .message {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .message.hidden { display: none; }
+        .message.success { background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(0,200,83,0.3); }
+        .message.error   { background: #FFEBEE; color: #D32F2F; border: 1px solid rgba(211,47,47,0.3); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 860px) {
+            .register-page { grid-template-columns: 1fr; }
+            .register-left { display: none; }
+            .register-right { padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-page">
+
+        <!-- ── LEFT: Branding ── -->
+        <div class="register-left">
+            <div class="reg-brand">
+                <div class="reg-brand-icon">
+                    <img src="{{ url_for('static', filename='images/phoenix.png') }}" alt="Lens Care">
+                </div>
+                <h2>LENS CARE</h2>
+            </div>
+
+            <div class="reg-left-content">
+                <h1>Start your eye health journey today</h1>
+                <p>Join thousands of users who track their vision, explore lens options, and stay ahead of their eye health.</p>
+                <ul class="reg-perks">
+                    <li><span class="perk-icon">🔬</span> Online color blindness & visual acuity tests</li>
+                    <li><span class="perk-icon">📊</span> Prescription tracking with trend charts</li>
+                    <li><span class="perk-icon">🕶️</span> Curated lens frame recommendations</li>
+                    <li><span class="perk-icon">💎</span> AI-powered lens material suggestions</li>
+                    <li><span class="perk-icon">🔒</span> Your data is private and secure</li>
+                </ul>
+            </div>
+
+            <p class="reg-footer-note">Free forever for personal use · No credit card needed</p>
+        </div>
+
+        <!-- ── RIGHT: Form ── -->
+        <div class="register-right">
+            <div class="reg-form-header">
+                <h2>Create your account</h2>
+                <p>It takes less than a minute to get started</p>
+            </div>
+
+            <form class="reg-form" id="registerForm">
+
+                <div class="section-divider"><span>Personal Info</span></div>
+
+                <div class="reg-grid-2">
+                    <div class="form-group">
+                        <label for="full_name">Full Name *</label>
+                        <input type="text" id="full_name" name="full_name" placeholder="e.g. Sankar R." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username *</label>
+                        <input type="text" id="username" name="username" placeholder="e.g. sankar2026" required>
+                    </div>
+                </div>
+
+                <div class="reg-grid-2">
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date_of_birth">Date of Birth</label>
+                        <input type="date" id="date_of_birth" name="date_of_birth">
+                    </div>
+                </div>
+
+                <div class="reg-grid-1">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+91 98765 43210">
+                    </div>
+                </div>
+
+                <div class="section-divider"><span>Set Password</span></div>
+
+                <div class="reg-grid-2">
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" placeholder="Min. 6 characters" required>
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="strengthBar"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="reg-submit-btn">Create My Account →</button>
+            </form>
+
+            <div id="message" class="message hidden"></div>
+
+            <p class="reg-signin-link">
+                Already have an account? <a href="/login">Sign in here</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Password strength meter
+        document.getElementById('password').addEventListener('input', function() {
+            const val = this.value;
+            const bar = document.getElementById('strengthBar');
+            let score = 0;
+            if (val.length >= 6)  score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const colors = ['#D32F2F','#FF8F00','#FBC02D','#00C853','#007BFF'];
+            const widths = ['20%','40%','60%','80%','100%'];
+            bar.style.width = score ? widths[score-1] : '0';
+            bar.style.background = score ? colors[score-1] : '';
+        });
+
+        // Confirm password validation
+        document.getElementById('confirm_password').addEventListener('input', function() {
+            const match = this.value === document.getElementById('password').value;
+            this.classList.toggle('valid', match && this.value.length > 0);
+            this.classList.toggle('invalid', !match && this.value.length > 0);
+        });
+
+        // Submit
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const messageDiv = document.getElementById('message');
+
+            if (password !== confirmPassword) {
+                messageDiv.textContent = 'Passwords do not match!';
+                messageDiv.className = 'message error';
+                return;
+            }
+
+            const btn = this.querySelector('button[type="submit"]');
+            btn.textContent = 'Creating account…';
+            btn.disabled = true;
+
+            const formData = {
+                full_name:      document.getElementById('full_name').value,
+                username:       document.getElementById('username').value,
+                email:          document.getElementById('email').value,
+                date_of_birth:  document.getElementById('date_of_birth').value,
+                phone:          document.getElementById('phone').value,
+                password:       password
+            };
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.textContent = '✅ Account created! Setting up your profile…';
+                    messageDiv.className = 'message success';
+                    const dest = result.redirect || '/onboarding';
+                    setTimeout(() => window.location.href = dest, 1400);
+                } else {
+                    messageDiv.textContent = result.message;
+                    messageDiv.className = 'message error';
+                    btn.textContent = 'Create My Account →';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className = 'message error';
+                btn.textContent = 'Create My Account →';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

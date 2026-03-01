@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Records - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Phoenix Animation -->
+    <div class="page-phoenix"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">👁️</span>
+                <h1>LENS CARE</h1>
+            </div>
+        </header>
+
+        <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+
+        <div class="detail-container">
+            <h2 class="page-title">📋 All Records</h2>
+
+            <!-- All Prescriptions -->
+            <div class="history-section">
+                <h2>📝 All Prescriptions ({{ prescriptions|length }})</h2>
+                
+                {% if prescriptions %}
+                <table class="prescription-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Date</th>
+                            <th>Diagnosis</th>
+                            <th>OD SE</th>
+                            <th>OS SE</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rx in prescriptions %}
+                        <tr>
+                            <td>{{ rx.id }}</td>
+                            <td>{{ rx.full_name }} ({{ rx.username }})</td>
+                            <td>{{ rx.prescription_date }}</td>
+                            <td>{{ rx.diagnosis }}</td>
+                            <td>{{ rx.od_se }}D</td>
+                            <td>{{ rx.os_se }}D</td>
+                            <td>
+                                <a href="/prescription_history/{{ rx.id }}" class="btn-link">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <p>No prescriptions found</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- All Eye Tests -->
+            <div class="history-section">
+                <h2>👁️ All Eye Tests ({{ eye_tests|length }})</h2>
+                
+                {% if eye_tests %}
+                <table class="prescription-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Date</th>
+                            <th>Test Type</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test in eye_tests %}
+                        <tr>
+                            <td>{{ test.id }}</td>
+                            <td>{{ test.username }}</td>
+                            <td>{{ test.test_date }}</td>
+                            <td>{{ test.test_type|replace('_', ' ')|title }}</td>
+                            <td>{{ test.score }}</td>
+                            <td>{{ test.result }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">👁️</div>
+                    <p>No eye tests found</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

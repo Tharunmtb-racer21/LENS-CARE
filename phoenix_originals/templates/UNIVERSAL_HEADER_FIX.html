@@ -1,0 +1,206 @@
+<!-- ═══════════════════════════════════════════════════════════
+     UNIVERSAL ATTRACTIVE HEADER - COPY THIS TO ALL YOUR PAGES
+     Add this in the <head> section of EVERY HTML file
+     ═══════════════════════════════════════════════════════════ -->
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ATTRACTIVE GRADIENT HEADERS - INLINE STYLES
+   Works on ALL pages regardless of external CSS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Standard Navigation Bar */
+.navbar, nav.navbar {
+    background: linear-gradient(135deg, #007BFF 0%, #0062CC 100%) !important;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 1rem 0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    margin: 0 !important;
+}
+
+.navbar .container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 2rem !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+}
+
+/* Brand Section */
+.nav-brand, .navbar .nav-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.eye-icon, .logo-icon {
+    font-size: 32px !important;
+    filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.4)) !important;
+    animation: eyePulse 3s ease-in-out infinite !important;
+}
+
+@keyframes eyePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.brand-text, .brand-name {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    letter-spacing: 3px !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+    font-family: 'Poppins', 'Arial', sans-serif !important;
+}
+
+/* Navigation Menu */
+.nav-menu, .navbar .nav-menu {
+    display: flex !important;
+    list-style: none !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+}
+
+.nav-link, .navbar .nav-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+    text-decoration: none !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    font-size: 14px !important;
+    position: relative !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.nav-link:hover, .navbar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Dashboard Navigation */
+.dashboard-nav {
+    background: linear-gradient(135deg, #007BFF 0%, #0062CC 50%, #005ab5 100%) !important;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.35) !important;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 1.2rem 2rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
+.dashboard-nav .logo-icon {
+    font-size: 36px !important;
+}
+
+.dashboard-nav .brand-name {
+    font-size: 26px !important;
+}
+
+.dashboard-nav .nav-user {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 15px !important;
+    padding: 10px 18px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 8px !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dashboard-nav .nav-user strong {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+/* Buttons */
+.btn, button, .nav-menu a, .dashboard-nav .btn {
+    padding: 10px 24px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+}
+
+.btn-outline, .dashboard-nav .btn-outline {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #FFFFFF !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.btn-outline:hover, .dashboard-nav .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Dashboard Header Section */
+.dashboard-header {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
+    padding: 2.5rem 2rem !important;
+    margin: 0 !important;
+    border-bottom: 2px solid rgba(0, 123, 255, 0.2) !important;
+    box-shadow: 0 2px 15px rgba(0, 123, 255, 0.15) !important;
+}
+
+.dashboard-header h1 {
+    font-size: 32px !important;
+    font-weight: 800 !important;
+    color: #007BFF !important;
+    margin: 0 0 8px 0 !important;
+    text-shadow: 0 2px 10px rgba(0, 123, 255, 0.2) !important;
+}
+
+.dashboard-subtitle {
+    font-size: 16px !important;
+    color: #0062CC !important;
+    margin: 0 !important;
+    font-weight: 500 !important;
+}
+
+/* Standalone Page Headers */
+.page-header, .header, header {
+    background: linear-gradient(135deg, #007BFF 0%, #0062CC 100%) !important;
+    padding: 2rem 0 !important;
+    margin: 0 0 2rem 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.25) !important;
+}
+
+.page-header h1, .header h1, header h1 {
+    color: #FFFFFF !important;
+    font-weight: 900 !important;
+    font-size: 32px !important;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3) !important;
+    margin: 0 !important;
+    text-align: center !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .navbar .container, .dashboard-nav {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        padding: 1rem !important;
+    }
+    
+    .nav-menu {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+    
+    .brand-text, .brand-name {
+        font-size: 20px !important;
+    }
+}
+</style>

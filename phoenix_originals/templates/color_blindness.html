@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Color Blindness Test - Lens Care{% endblock %}
+
+{% block extra_css %}
+<style>
+    .test-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .test-plate {
+        width: 400px;
+        height: 400px;
+        margin: 30px auto;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .test-number {
+        font-size: 120px;
+        font-weight: bold;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .answer-input {
+        text-align: center;
+        font-size: 24px;
+        width: 150px;
+        padding: 15px;
+        margin: 20px auto;
+        display: block;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+    }
+    
+    .test-progress {
+        text-align: center;
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .test-navigation {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .results-card {
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    
+    .score-display {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: center;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🎨 Color Blindness Test</h1>
+        <p>Based on Ishihara Color Test Plates</p>
+    </div>
+</div>
+
+<div class="container">
+    <div id="testInstructions" class="test-container">
+        <h2>Instructions</h2>
+        <div class="info-card">
+            <ul>
+                <li>You will see 10 colored plates with numbers inside them</li>
+                <li>Enter the number you see in each plate</li>
+                <li>If you cannot see a number, enter "0" or leave blank</li>
+                <li>Take your time, but don't overthink it</li>
+                <li>This test takes approximately 3 minutes</li>
+            </ul>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="startTest()" class="btn btn-primary btn-large">Start Test</button>
+            <a href="/eye-tests" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+    <div id="testContent" class="test-container" style="display: none;">
+        <div class="test-progress">
+            Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span>
+        </div>
+        
+        <canvas id="testPlate" class="test-plate" width="400" height="400"></canvas>
+        
+        <div style="text-align: center;">
+            <input type="text" id="answerInput" class="answer-input" placeholder="Enter number" maxlength="2">
+            <p style="color: #666; font-size: 14px;">Enter the number you see or "0" if you cannot see any number</p>
+        </div>
+        
+        <div class="test-navigation">
+            <button onclick="submitAnswer()" class="btn btn-primary">Next Question</button>
+        </div>
+    </div>
+
+    <div id="testResults" class="test-container" style="display: none;">
+        <h2 style="text-align: center;">Test Results</h2>
+        
+        <div class="score-display" id="scoreDisplay"></div>
+        
+        <div class="results-card">
+            <h3>Analysis</h3>
+            <div id="resultAnalysis"></div>
+        </div>
+        
+        <div class="test-navigation">
+            <button onclick="restartTest()" class="btn btn-secondary">Retake Test</button>
+            <a href="/eye-tests" class="btn btn-primary">Back to Tests</a>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/color_blindness.js') }}"></script>
+{% endblock %}

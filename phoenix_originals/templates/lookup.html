@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Lookup - Lens Care{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🔍 Patient Lookup</h1>
+        <p>Search for patient records by ID</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="form-card" style="max-width: 600px; margin: 0 auto;">
+        <h3>Search Patient</h3>
+        <div class="form-group">
+            <label>Patient ID</label>
+            <input type="text" id="searchId" class="form-control" placeholder="Enter Patient ID (e.g., PT0001)">
+        </div>
+        <div class="form-actions">
+            <button onclick="searchPatient()" class="btn btn-primary">Search</button>
+            <a href="/" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+    <div id="searchResults" style="display: none; margin-top: 30px;">
+        <div class="results-header">
+            <h3>Search Results</h3>
+            <button onclick="downloadPDF()" class="btn btn-secondary">Download PDF</button>
+        </div>
+        <div id="recordsContainer"></div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/lookup.js') }}"></script>
+{% endblock %}

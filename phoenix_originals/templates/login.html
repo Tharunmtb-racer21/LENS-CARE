@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        .phoenix-login-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .phoenix-shape {
+            position: relative;
+            background: linear-gradient(160deg, #007BFF 0%, #0062CC 60%, #005ab5 100%);
+            border-radius: 30px;
+            padding: 50px 40px;
+            padding-top: 160px;
+            box-shadow: 0 20px 60px rgba(0, 123, 255, 0.25), 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.6s ease;
+            margin-top: 90px;
+        }
+
+        /* Eye image — clean, no aura */
+        .phoenix-shape::before {
+            content: '';
+            position: absolute;
+            top: -125px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 155px;
+            height: 155px;
+            background: url('/static/images/phoenix.png') center/contain no-repeat;
+            filter: drop-shadow(0 4px 18px rgba(0, 212, 255, 0.5)) drop-shadow(0 0 30px rgba(0,123,255,0.4));
+            animation: eyeFloat 3s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        /* ── AURA REMOVED — no ::after ── */
+
+        /* Title below floating eye */
+        .phoenix-title {
+            position: absolute;
+            top: 42px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 3;
+            white-space: nowrap;
+        }
+
+        .phoenix-title h1 {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .phoenix-title p {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            opacity: 1;
+            margin: 5px 0 0 0;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        @keyframes eyeFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50%       { transform: translateX(-50%) translateY(-12px); }
+        }
+
+        /* Card fly-away on login success */
+        @keyframes eyeFlyAway {
+            0%   { transform: translateX(-50%) translateY(0px)    scale(1)   rotate(0deg);  opacity: 1; }
+            50%  { transform: translateX(-50%) translateY(-80px)  scale(1.1) rotate(8deg);  opacity: 0.7; }
+            100% { transform: translateX(-50%) translateY(-600px) scale(0.4) rotate(20deg); opacity: 0; }
+        }
+
+        @keyframes containerFadeOut {
+            0%   { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.85); }
+        }
+
+        .phoenix-shape.flying::before {
+            animation: eyeFlyAway 1.5s ease-out forwards;
+        }
+        .phoenix-shape.flying {
+            animation: containerFadeOut 1.5s ease-out forwards;
+        }
+
+        /* ── POST-LOGIN REVEAL: Eye + LENS CARE title, no aura ── */
+        .reveal-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            z-index: 9999;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .reveal-wrapper.active {
+            animation: revealRise 2.2s ease-out forwards;
+        }
+
+        .reveal-eye {
+            width: 240px;
+            height: 240px;
+            background: url('/static/images/phoenix.png') center/contain no-repeat;
+            filter: drop-shadow(0 0 28px rgba(0, 123, 255, 0.9))
+                    drop-shadow(0 0 55px rgba(0, 200, 255, 0.6));
+        }
+
+        .reveal-title h2 {
+            font-size: 44px;
+            font-weight: 900;
+            letter-spacing: 7px;
+            color: #ffffff;
+            margin: 0;
+            text-align: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .reveal-title p {
+            font-size: 12px;
+            color: #3A5A7C;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        @keyframes revealRise {
+            0%  { transform: translate(-50%, -50%) scale(0);    opacity: 0; }
+            25% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+            65% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+            100%{ transform: translate(-50%, -50%) scale(1.2);  opacity: 0; }
+        }
+
+        /* Welcome heading inside card */
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+        .login-title h1 {
+            font-size: 28px;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .login-title p {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Post-login: eye + title, ZERO aura -->
+    <div class="reveal-wrapper" id="revealWrapper">
+        <div class="reveal-eye"></div>
+        <div class="reveal-title">
+            <h2>LENS CARE</h2>
+            <p>Vision Tracking System</p>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="phoenix-login-container">
+            <div class="phoenix-shape" id="phoenixContainer">
+
+                <!-- LENS CARE title sitting just below the floating eye -->
+                <div class="phoenix-title">
+                    <h1>LENS CARE</h1>
+                    <p>Vision Tracking System</p>
+                </div>
+
+                <div class="login-title">
+                    <h1>Welcome Back</h1>
+                    <p>👁️ Sign in to your account</p>
+                </div>
+
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-block">Login</button>
+                </form>
+
+                <div id="message" class="message hidden"></div>
+
+                <div class="auth-footer" style="color:rgba(255,255,255,0.7);">
+                    <p>Don't have an account? <a href="/register" style="color:#fff; font-weight:700;">Register here</a></p>
+                    <p><a href="/" style="color:rgba(255,255,255,0.7);">← Back to Home</a> &nbsp;·&nbsp; <a href="/about" style="color:rgba(255,255,255,0.7);">About</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username         = document.getElementById('username').value;
+            const password         = document.getElementById('password').value;
+            const messageDiv       = document.getElementById('message');
+            const phoenixContainer = document.getElementById('phoenixContainer');
+            const revealWrapper    = document.getElementById('revealWrapper');
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.textContent = 'Login successful! ✨';
+                    messageDiv.className   = 'message success';
+
+                    // Capture redirect URL from server (doctor→/doctor_dashboard, patient→/onboarding)
+                    const redirectUrl = result.redirect || '/dashboard';
+
+                    // 1. Card + eye fly away
+                    phoenixContainer.classList.add('flying');
+
+                    // 2. Big eye + LENS CARE title rise up
+                    setTimeout(() => {
+                        revealWrapper.classList.add('active');
+                    }, 1500);
+
+                    // 3. Redirect to correct destination
+                    setTimeout(() => window.location.href = redirectUrl, 3700);
+
+                } else {
+                    messageDiv.textContent = result.message;
+                    messageDiv.className   = 'message error';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.className   = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>

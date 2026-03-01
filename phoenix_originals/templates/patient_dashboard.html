@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Lens Care</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="dashboard-nav">
+            <div class="nav-brand">
+                <span class="logo-icon">👁️</span>
+                <span class="brand-name">LENS CARE</span>
+            </div>
+            <div class="nav-menu">
+                <span class="nav-user">
+                    <strong>👤 {{ session.full_name }}</strong>
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </nav>
+
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <h1>My Vision Dashboard</h1>
+            <p class="dashboard-subtitle">Patient ID: <strong>{{ patient_id }}</strong></p>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <h3>{{ visits|length }}</h3>
+                    <p>Total Visits</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🕐</div>
+                <div class="stat-content">
+                    <h3>{{ visits[0].date.split()[0] if visits else 'N/A' }}</h3>
+                    <p>Last Visit</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-content">
+                    <h3>{{ visits[0].diagnosis if visits else 'N/A' }}</h3>
+                    <p>Current Diagnosis</p>
+                </div>
+            </div>
+        </div>
+
+        {% if visits|length > 1 %}
+        <!-- Vision Progression Chart -->
+        <div class="chart-section">
+            <h2>📈 Vision Progression Over Time</h2>
+            <div class="chart-card">
+                <canvas id="progressionChart"></canvas>
+            </div>
+            <div class="chart-info">
+                <p><strong>Spherical Equivalent (SE)</strong> shows your overall refractive error.</p>
+                <p>Negative values indicate myopia (nearsightedness), positive values indicate hyperopia (farsightedness).</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Visit History -->
+        <div class="visit-history-section">
+            <h2>📋 My Visit History</h2>
+            
+            {% if visits %}
+            <div class="visits-timeline">
+                {% for visit in visits %}
+                <div class="visit-card">
+                    <div class="visit-header">
+                        <h3>
+                            <span class="visit-number">Visit #{{ visit.visit_number }}</span>
+                            <span class="visit-date">{{ visit.date.split()[0] }}</span>
+                        </h3>
+                    </div>
+                    
+                    <div class="visit-content">
+                        <div class="visit-section">
+                            <h4>👁️ Prescription</h4>
+                            <table class="prescription-mini-table">
+                                <tr>
+                                    <th>Eye</th>
+                                    <th>SPH</th>
+                                    <th>CYL</th>
+                                    <th>AXIS</th>
+                                    <th>ADD</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td>{{ visit.od_sph }}</td>
+                                    <td>{{ visit.od_cyl }}</td>
+                                    <td>{{ visit.od_axis }}°</td>
+                                    <td>{{ visit.od_add or '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS</strong></td>
+                                    <td>{{ visit.os_sph }}</td>
+                                    <td>{{ visit.os_cyl }}</td>
+                                    <td>{{ visit.os_axis }}°</td>
+                                    <td>{{ visit.os_add or '-' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="visit-section">
+                            <h4>🔍 Diagnosis & Recommendations</h4>
+                            <div class="diagnosis-info">
+                                <p><strong>Diagnosis:</strong> {{ visit.diagnosis }}</p>
+                                <p><strong>Lens Type:</strong> {{ visit.lens_type }}</p>
+                                <p><strong>Lens Power:</strong> {{ visit.lens_power }}</p>
+                                <p><strong>Recommended Material:</strong> {{ visit.lens_material }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if visit.colorblind_score or visit.acuity_score %}
+                        <div class="visit-section">
+                            <h4>🎯 Eye Test Results</h4>
+                            <div class="test-results-inline">
+                                {% if visit.colorblind_score %}
+                                <p><strong>Color Vision:</strong> {{ visit.colorblind_score }}</p>
+                                {% endif %}
+                                {% if visit.acuity_score %}
+                                <p><strong>Visual Acuity:</strong> {{ visit.acuity_score }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="visit-actions">
+                        <button class="btn btn-primary btn-sm" onclick="downloadReport('{{ visit.visit_id }}')">
+                            📄 Download Report
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-visits">
+                <div class="no-visits-icon">📂</div>
+                <h3>No Visits Yet</h3>
+                <p>You don't have any visits recorded yet. Contact your eye care professional for your first examination.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Information Panel -->
+        <div class="info-panel-dashboard">
+            <h3>ℹ️ Understanding Your Prescription</h3>
+            <div class="info-grid-dashboard">
+                <div class="info-item-dashboard">
+                    <h4>SPH (Sphere)</h4>
+                    <p>Measures nearsightedness (-) or farsightedness (+)</p>
+                </div>
+                <div class="info-item-dashboard">
+                    <h4>CYL (Cylinder)</h4>
+                    <p>Measures astigmatism (irregular cornea)</p>
+                </div>
+                <div class="info-item-dashboard">
+                    <h4>AXIS</h4>
+                    <p>Direction of astigmatism (0-180°)</p>
+                </div>
+                <div class="info-item-dashboard">
+                    <h4>ADD</h4>
+                    <p>Reading addition for presbyopia (age 40+)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        {% if visits|length > 1 %}
+        // Load progression chart
+        async function loadProgressionChart() {
+            try {
+                const response = await fetch('/get_patient_trends/{{ patient_id }}');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const ctx = document.getElementById('progressionChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.dates,
+                            datasets: [
+                                {
+                                    label: 'Right Eye (OD)',
+                                    data: data.od_se,
+                                    borderColor: 'rgb(102, 126, 234)',
+                                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Left Eye (OS)',
+                                    data: data.os_se,
+                                    borderColor: 'rgb(231, 76, 60)',
+                                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Spherical Equivalent Over Time (Diopters)'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Spherical Equivalent (D)'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Visit Date'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading chart:', error);
+            }
+        }
+
+        window.onload = () => {
+            loadProgressionChart();
+        };
+        {% endif %}
+
+        function downloadReport(visitId) {
+            window.location.href = `/download_report/${visitId}`;
+        }
+    </script>
+</body>
+</html>
